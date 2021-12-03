@@ -4,18 +4,18 @@ let fields = [];
 
 function setup() {
   createCanvas(windowHeight, windowHeight);
-  noStroke();
+  //noStroke();
   background(255);
   frameRate(60);
 
   //noiseSeed(1257);
   
   let screenDivisions = 1;
-  let numparticles = 100;
+  let numparticles = 1000;
   let noiseScale = 0.001;
   let particleSpeed = 0.02/noiseScale;
   let palette = new Palette([color(226, 106, 44), color(255, 130, 67), color(253, 168, 93), color(255, 208, 127)]);
-  let borderlimit = 10; 
+  let borderlimit = 0; 
 
   let griddivs = 4;
   let gridSize = width/griddivs;
@@ -143,7 +143,7 @@ class FlowField {
   addPerlinNoise(topology, n, m, scale) {
     for (var i = 0; i < n; i++) {
       for (var j = 0; j < m; j++) {
-        topology[i][j] = 255*noise(i*scale, j*scale);
+        topology[i][j] = 255*noise((this.originx+i)*scale, (this.originy+j)*scale);
       }
     }
     return topology;
