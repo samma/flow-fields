@@ -1,6 +1,7 @@
 
 let particle;
 let gradient;
+let screenDivisions = 2;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
@@ -8,34 +9,43 @@ function setup() {
   background(255);
   //noiseSeed(123);
 
-  renderloop();
+  renderloop(screenDivisions);
 
-  particle = new Point(width / 2, height / 2, 0.5);
+  particle = new Point(width / 2, height / 2, 1, screenDivisions);
 
 }
 
+function renderloop(screenDivisions) {
+  var topology = generateTopology(width / screenDivisions, height / screenDivisions);
+  topology = addPerlinNoise(topology, width / screenDivisions, height / screenDivisions, 0.01);
+  drawField(topology, width / screenDivisions, height / screenDivisions, screenDivisions);
+  
+  gradient = calculateGradient(topology, width / screenDivisions, height / screenDivisions);
+  //drawGradient(gradient, width / screenDivisions, height / screenDivisions, screenDivisions);
+}
+
 class Point {
-  constructor(x, y, speed) {
+  constructor(x, y, speed, screenDivisions) {
     this.x = x;
     this.y = y;
     this.speed = speed;
+    this.screenDivisions = screenDivisions
   }
 
   update(field) {
-    // round number down
-    let x = floor(this.x/10);
-    let y = floor(this.y/10);
+    // Round the position into a grid index
+    let x = floor(this.x/this.screenDivisions);
+    let y = floor(this.y/this.screenDivisions);
 
-    
+    // Move perpendicular to gradient
     let perp = getPerpendicularVector(field[x][y])
-
     this.x += this.speed*perp.x;
     this.y += this.speed*perp.y;
   }
 
   drawCircle() {
     fill(0, 0, 255);
-    ellipse(this.x, this.y, 10, 10);
+    ellipse(this.x, this.y, 3, 3);
   }
 
 }
@@ -47,10 +57,6 @@ function getPerpendicularVector(v) {
 function draw() {
   particle.update(gradient);
   particle.drawCircle();
-
-  // log to console
-  console.log(particle.x, particle.y);
-
 }
 
 function physicsLoop() {
@@ -59,25 +65,18 @@ function physicsLoop() {
   }
 }
 
-function renderloop() {
-  var topology = generateTopology(width / 10, height / 10);
-  topology = addPerlinNoise(topology, width / 10, height / 10, 0.05);
-  drawField(topology, width / 10, height / 10);
-  
-  gradient = calculateGradient(topology, width / 10, height / 10);
-  //drawGradient(gradient, width / 10, height / 10);
-}
 
-function drawGradient(gradient, n, m) {
+
+function drawGradient(gradient, n, m, screenDivisions) {
   for (var i = 0; i < n; i++) {
     for (var j = 0; j < m; j++) {
       //drawParticleAt(i * 10, j * 10, gradient[i][j].x, gradient[i][j].y, 0, 10);
       
       fill(gradient[i][j].x,0,100);
-      rect(i * 10, j * 10, 10, 10);
+      rect(i * screenDivisions, j * screenDivisions, screenDivisions, screenDivisions);
     
       fill(0,gradient[i][j].y,0,100);
-      rect(i * 10, j * 10, 10, 10);
+      rect(i * screenDivisions, j * screenDivisions, screenDivisions, screenDivisions);
     }
   }
 }
@@ -102,11 +101,11 @@ function addPerlinNoise(topology, n, m, scale) {
   return topology;
 }
 
-function drawField(topology, n, m) {
+function drawField(topology, n, m, screenDivisions) {
   for (var i = 0; i < n; i++) {
     for (var j = 0; j < m; j++) {
       fill(topology[i][j]);
-      rect(i * 10, j * 10, 10, 10);
+      rect(i * screenDivisions, j * screenDivisions, screenDivisions, screenDivisions);
     }
   }
 }
@@ -121,6 +120,8 @@ function calculateGradient(topology, n, m) {
   }
   return gradient
 }
+
+// Calculates the gradient vector at a given point in the topology.
 
 function calculateGradientAt(topology, i, j, n, m) {
   // new vector
