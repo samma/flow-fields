@@ -13,21 +13,26 @@ function setup() {
   //randomSeed(554);
   //noiseSeed(55);
 
+  // Create a border around the canvas
+  let border = 50;
+  let width = windowWidth - border*2;
+  let height = windowHeight - border*2;
+  let originx = border;
+  let originy = border;
   
-
   // Settings for the actual flowfields
   let screenDivisions = 1;
   let numparticles = 100;
   let noiseScale = 0.005;
   let particleSpeed = 0.005;
   let normalizedSpeed = particleSpeed/noiseScale;
-  let borderlimit = 5; 
+  let borderlimit = 20; 
 
   // For creating multiple flow fields in same window
-  let griddivs = 10;
+  let griddivs = 5;
   let gridSize = width/griddivs;
-  let gridCoordinates = createGridCoordinates(0, 0, width, height, griddivs);
-  palettes = generatePalettes(gridCoordinates.length, 4);
+  let gridCoordinates = createGridCoordinates(originx, originy, width, height, griddivs);
+  palettes = Palette.generatePalettes(gridCoordinates.length, 4);
   
   //iterate over gridcoordina
   backgroundColor = color(30, 1, 87);
@@ -38,29 +43,12 @@ function setup() {
     let y = gridCoordinates[i].y;
     fields.push(new FlowField(x,y,gridSize,gridSize,screenDivisions,noiseScale,normalizedSpeed,numparticles,backgroundColor,palettes[i], borderlimit));
   }
-  
-
-
 }
 
 function draw() {
   for (let i = 0; i < fields.length; i++) {
     fields[i].update();  
   }
-}
-
-function createGridCoordinates(x, y, width, height, gridSize) {
-  let gridCoordinates = [];
-  let xStep = width/gridSize;
-  let yStep = height/gridSize;
-  for (let i = 0; i < gridSize; i++) {
-    for (let j = 0; j < gridSize; j++) {
-      let x = i*xStep;
-      let y = j*yStep;
-      gridCoordinates.push(createVector(x,y));
-    }
-  }
-  return gridCoordinates;
 }
 
 class FlowField {
@@ -175,7 +163,6 @@ class FlowField {
   
   // Calculates the gradient vector at a given point in the topology.
   calculateGradientAt(topology, i, j, n, m) {
-    // new vector
     var gradientVec = createVector(0, 0);
     
     if (i > 0) {
@@ -194,18 +181,7 @@ class FlowField {
   }
 }
 
-function getrandomPointInWindowWithBorder(width, height, borderlimit) {
-  let x = random(borderlimit, width - borderlimit);
-  let y = random(borderlimit, height - borderlimit);
-  return createVector(x, y);
-}
-
-function getrandomPointInWindow(width, height) {
-  return createVector(random(width), random(height));
-}
-
-
-
+// Used for the moving dots / lines
 class Point {
   constructor(x, y, speed, screenDivisions, palette) {
     this.x = x;
@@ -217,8 +193,7 @@ class Point {
     this.strokeWeight = random(1, 3);
     this.palette = palette;
 
-    // Set this.color to a color from a theme
-    //this.color = color(random(255), random(255), random(255));
+    // Set the color to a color from a theme
     this.color = this.palette.getRandomColor();
   }
 
@@ -242,9 +217,9 @@ class Point {
     // Draw a line from the previous position to the current position
     stroke(this.color);
     strokeWeight(this.strokeWeight);
-
     line(originx + this.previousX, originy + this.previousY, originx + this.x, originy + this.y);
 
+    // Used for drawing points instead of lines
     //fill(10, 10, 10, 50);
     //fill(this.color);
     //ellipse(this.x, this.y, 1, 1);
@@ -272,6 +247,7 @@ class Point {
   }
 }
 
+// Collection of colors
 class Palette {
   constructor(colors) {
     this.colors = colors;
@@ -284,23 +260,49 @@ class Palette {
   getRandomColor() {
     return this.colors[Math.floor(Math.random() * this.colors.length)];
   }
+
+  static generatePalettes(numPalettes, numColors) {
+    let palettes = [];
+    for (let i = 0; i < numPalettes; i++) {
+      let palette = new Palette([]);
+      for (let j = 0; j < numColors; j++) {
+        palette.addColor(generateRandomHSBColor());
+      }
+      palettes.push(palette);
+    }
+    return palettes;
+  }
 }
 
-function generatePalettes(numPalettes, numColors) {
-  let palettes = [];
-  for (let i = 0; i < numPalettes; i++) {
-    let palette = new Palette([]);
-    for (let j = 0; j < numColors; j++) {
-      palette.addColor(generateRandomHSBColor());
-    }
-    palettes.push(palette);
-  }
-  return palettes;
-}
+// Various utility functions
 
 function generateRandomHSBColor() {
   let hue = random(0, 360);
   let saturation = random(0, 100);
   let value = random(0, 100);
   return color(hue, saturation, value);
+}
+
+function getrandomPointInWindowWithBorder(width, height, borderlimit) {
+  let x = random(borderlimit, width - borderlimit);
+  let y = random(borderlimit, height - borderlimit);
+  return createVector(x, y);
+}
+
+function getrandomPointInWindow(width, height) {
+  return createVector(random(width), random(height));
+}
+
+function createGridCoordinates(originx, originy, width, height, gridSize) {
+  let gridCoordinates = [];
+  let xStep = width/gridSize;
+  let yStep = height/gridSize;
+  for (let i = 0; i < gridSize; i++) {
+    for (let j = 0; j < gridSize; j++) {
+      let x = i*xStep + originx;
+      let y = j*yStep + originy;
+      gridCoordinates.push(createVector(x,y));
+    }
+  }
+  return gridCoordinates;
 }
