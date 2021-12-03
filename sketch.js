@@ -1,18 +1,33 @@
 
-let particle;
+let particles = [];
 let gradient;
 let screenDivisions = 2;
+let numparticles = 5000;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
   noStroke();
   background(255);
-  //noiseSeed(123);
+  noiseSeed(123);
 
   renderloop(screenDivisions);
 
-  particle = new Point(width / 2, height / 2, 1, screenDivisions);
 
+  for (var i = 0; i < numparticles; i++) {
+    particles[i] = new Point(getrandomPointOnscreen().x, getrandomPointOnscreen().y, 0.5, screenDivisions);
+  }
+}
+
+function draw() {
+  // Iterate over particles
+  for (var i = 0; i < particles.length; i++) {
+    particles[i].update(gradient);
+    particles[i].display();
+  }
+}
+
+function getrandomPointOnscreen() {
+  return createVector(random(width), random(height));
 }
 
 function renderloop(screenDivisions) {
@@ -29,7 +44,7 @@ class Point {
     this.x = x;
     this.y = y;
     this.speed = speed;
-    this.screenDivisions = screenDivisions
+    this.screenDivisions = screenDivisions;
   }
 
   update(field) {
@@ -37,27 +52,28 @@ class Point {
     let x = floor(this.x/this.screenDivisions);
     let y = floor(this.y/this.screenDivisions);
 
+    // Check if x or y is outside the screen
+    if (x < 0 || x >= field.length || y < 0 || y >= field[0].length) {
+      return; // TODO deallocate the Point?
+    }
+
     // Move perpendicular to gradient
     let perp = getPerpendicularVector(field[x][y])
     this.x += this.speed*perp.x;
     this.y += this.speed*perp.y;
   }
 
-  drawCircle() {
+  display() {
     fill(0, 0, 255);
-    ellipse(this.x, this.y, 3, 3);
+    ellipse(this.x, this.y, 1, 1);
   }
-
 }
 
 function getPerpendicularVector(v) {
   return createVector(-v.y, v.x);
 }
 
-function draw() {
-  particle.update(gradient);
-  particle.drawCircle();
-}
+
 
 function physicsLoop() {
   for (var i = 0; i < particles.length; i++) {
