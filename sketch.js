@@ -1,64 +1,102 @@
-// Draw settings
-let screenDivisions = 1;
-let numparticles = 5000;
-let noiseScale = 0.0015;
-let particleSpeed = 10;
 
-// Backing variables
-let particles = [];
-let gradient;
-let topology;
-
-
-function setup() {
-  createCanvas(windowWidth, windowHeight);
-  noStroke();
-  background("#E26A2C");
-  frameRate(60);
-
-
-  noiseSeed(1257);
-  createWorld(screenDivisions);
-  initParticles();
-
-  //drawField(topology, width / screenDivisions, height / screenDivisions, screenDivisions);
-  //drawGradient(gradient, width / screenDivisions, height / screenDivisions, screenDivisions);
-
-}
-
-function draw() {
-  drawParticles();
-}
-
-function initParticles() {
-  // Init particles
-  for (var i = 0; i < numparticles; i++) {
-    particles[i] = new Point(getrandomPointOnscreen().x, getrandomPointOnscreen().y, particleSpeed, screenDivisions);
+class FlowField {
+  constructor(originx, originy, width,height,screenDivisions, noiseScale, particleSpeed, numparticles, backgroundColor) {
+    this.originx = originx;
+    this.originy = originy;
+    this.width = width;
+    this.height = height;
+    this.screenDivisions = screenDivisions;
+    this.noiseScale = noiseScale;
+    this.particleSpeed = particleSpeed;
+    this.numparticles = numparticles;
+    this.backgroundColor = backgroundColor;
+    this.particles = [];
+    this.gradient;
+    this.topology;
+    this.createField();
+    this.initParticles();
   }
-}
 
-function drawParticles()  {
-  // Iterate over particles
-  for (var i = 0; i < particles.length; i++) {
-    if (particles[i].isAlive(gradient) ){
-      particles[i].update(gradient);
-      particles[i].display();
-    } else {
-      // TODO remove the dead particle for performance
-      particles[i] = new Point(getrandomPointOnscreen().x, getrandomPointOnscreen().y, particleSpeed, screenDivisions); 
+  update() {
+    this.updateAndDrawParticles();
+  }
+
+  createField() {
+    this.topology = generateTopology(this.width / this.screenDivisions, this.height / this.screenDivisions);
+    this.topology = addPerlinNoise(this.topology, this.width / this.screenDivisions, this.height / this.screenDivisions, this.noiseScale);
+    this.gradient = calculateGradient(this.topology, this.width / this.screenDivisions, this.height / this.screenDivisions);
+  }
+  
+  initParticles() {
+    for (var i = 0; i < this.numparticles; i++) {
+      let newLocation = getrandomPointInWindow(this.width, this.height);
+      this.particles[i] = new Point(newLocation.x, newLocation.y, this.particleSpeed, this.screenDivisions);
+    }
+  }
+  
+  updateAndDrawParticles() {
+    // Iterate over particles
+    for (var i = 0; i < this.particles.length; i++) {
+      if (this.particles[i].isAlive(this.gradient) ){
+        this.particles[i].update(this.gradient);
+        this.particles[i].displayAt(this.originx, this.originy);
+      } else {
+        // TODO remove the dead particle for performance, or keep regenerating them
+        let newLocation = getrandomPointInWindow(this.width, this.height);
+        this.particles[i] = new Point(newLocation.x, newLocation.y, this.particleSpeed, this.screenDivisions); 
+      }
+    }
+  }
+
+  drawField() {
+    for (var i = 0; i < n; i++) {
+      for (var j = 0; j < m; j++) {
+        fill(this.topology[i][j]);
+        rect(this.originx + i * this.screenDivisions, this.originy + j * this.screenDivisions, this.screenDivisions, this.screenDivisions);
+      }
+    }
+  }
+
+  drawGradient() {
+    for (var i = 0; i < n; i++) {
+      for (var j = 0; j < m; j++) {
+        //drawParticleAt(i * 10, j * 10, gradient[i][j].x, gradient[i][j].y, 0, 10);
+        
+        fill(this.gradient[i][j].x,0,100);
+        rect(this.originx + i * this.screenDivisions, this.originy + j * this.screenDivisions, this.screenDivisions, this.screenDivisions);
+      
+        fill(0,gradient[i][j].y,0,100);
+        rect(this.originx + i * this.screenDivisions, this.originy + j * this.screenDivisions, this.screenDivisions, this.screenDivisions);
+      }
     }
   }
 }
 
-function getrandomPointOnscreen() {
-  return createVector(random(width), random(height));
+let flowField;
+
+function setup() {
+  createCanvas(windowWidth, windowHeight);
+  noStroke();
+  background(255);
+  frameRate(60);
+
+  //noiseSeed(1257);
+  
+  let screenDivisions = 1;
+  let numparticles = 10000;
+  let noiseScale = 0.001;
+  let particleSpeed = 0.02/noiseScale;
+
+  flowfield = new FlowField(0,0,width,height,screenDivisions,noiseScale,particleSpeed,numparticles,color(0,0,0));
+
 }
 
-function createWorld(screenDivisions) {
-  topology = generateTopology(width / screenDivisions, height / screenDivisions);
-  topology = addPerlinNoise(topology, width / screenDivisions, height / screenDivisions, noiseScale);
-  
-  gradient = calculateGradient(topology, width / screenDivisions, height / screenDivisions);
+function draw() {
+  flowfield.update();
+}
+
+function getrandomPointInWindow(width, height) {
+  return createVector(random(width), random(height));
 }
 
 class Point {
@@ -69,7 +107,7 @@ class Point {
     this.screenDivisions = screenDivisions;
     this.previousX = 0;
     this.previousY = 0;
-    this.strokeWeight = random(1, 10);
+    this.strokeWeight = random(1, 1);
     // Set this.color to a color from a theme
     //this.color = color(random(255), random(255), random(255));
     this.color = getRandomColorFromPalette();
@@ -90,7 +128,7 @@ class Point {
     this.y += this.speed*perp.y;
   }
 
-  display() {
+  displayAt(originx, originy){
     
     // Draw a line from the previous position to the current position
     
@@ -98,7 +136,7 @@ class Point {
     // Draw random stroke width
     strokeWeight(this.strokeWeight);
 
-    line(this.previousX, this.previousY, this.x, this.y);
+    line(originx + this.previousX, originy + this.previousY, originx + this.x, originy + this.y);
 
 
     //fill(10, 10, 10, 50);
