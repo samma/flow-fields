@@ -5,22 +5,22 @@ let fields = [];
 function setup() {
   createCanvas(windowHeight, windowHeight);
   //noStroke();
-  background(255);
+  background(0);
   frameRate(60);
+  colorMode(HSB);
 
   //noiseSeed(1257);
   
   let screenDivisions = 1;
-  let numparticles = 1000;
-  let noiseScale = 0.001;
-  let particleSpeed = 0.02/noiseScale;
-  let palette = new Palette([color(226, 106, 44), color(255, 130, 67), color(253, 168, 93), color(255, 208, 127)]);
-  let borderlimit = 0; 
+  let numparticles = 100;
+  let noiseScale = 0.005;
+  let particleSpeed = 0.01/noiseScale;
+  let borderlimit = 10; 
 
-  let griddivs = 4;
+  let griddivs = 10;
   let gridSize = width/griddivs;
   let gridCoordinates = createGridCoordinates(0, 0, width, height, griddivs);
-  palettes = generatePalettes(gridCoordinates.length);
+  palettes = generatePalettes(gridCoordinates.length, 3);
   
   //iterate over gridcoordinates
   for (let i = 0; i < gridCoordinates.length; i++) {
@@ -30,16 +30,6 @@ function setup() {
   }
   
 }
-
-function generatePalettes(numColors) {
-  let palettes = [];
-  for (let i = 0; i < numColors; i++) {
-    let palette = new Palette([color(random(255), random(255), random(255)), color(random(255), random(255), random(255)), color(random(255), random(255), random(255)), color(random(255), random(255), random(255))]);
-    palettes.push(palette);
-  }
-  return palettes;
-}
-
 
 function draw() {
   for (let i = 0; i < fields.length; i++) {
@@ -269,8 +259,26 @@ class Palette {
     this.colors = colors;
   }
 
+  addColor(color) {
+    this.colors.push(color);
+  }
+
   getRandomColor() {
     return this.colors[Math.floor(Math.random() * this.colors.length)];
   }
 }
 
+function generatePalettes(numPalettes, numColors) {
+  let palettes = [];
+  for (let i = 0; i < numPalettes; i++) {
+    let palette = new Palette([]);
+    for (let j = 0; j < numColors; j++) {
+      let hue = random(0, 360);
+      let saturation = random(0, 100);
+      let value = random(0, 100);
+      palette.addColor(color(hue, saturation, value));
+    }
+    palettes.push(palette);
+  }
+  return palettes;
+}
