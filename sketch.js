@@ -9,15 +9,18 @@ function setup() {
   frameRate(60);
   colorMode(HSB);
 
-  //noiseSeed(1257);
+  // Set seed for random number generator and noise generator
+  randomSeed(55);
+  noiseSeed(55);
   
+
   let screenDivisions = 1;
-  let numparticles = 100;
-  let noiseScale = 0.005;
-  let particleSpeed = 0.01/noiseScale;
+  let numparticles = 1000;
+  let noiseScale = 0.0005;
+  let particleSpeed = 0.03/noiseScale;
   let borderlimit = 10; 
 
-  let griddivs = 10;
+  let griddivs = 3;
   let gridSize = width/griddivs;
   let gridCoordinates = createGridCoordinates(0, 0, width, height, griddivs);
   palettes = generatePalettes(gridCoordinates.length, 3);
@@ -196,7 +199,7 @@ class Point {
     this.screenDivisions = screenDivisions;
     this.previousX = 0;
     this.previousY = 0;
-    this.strokeWeight = random(1, 1);
+    this.strokeWeight = random(1, 3);
     this.palette = palette;
 
     // Set this.color to a color from a theme
