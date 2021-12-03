@@ -12,6 +12,7 @@ function setup() {
   // Set seed for random number generator and noise generator
   //randomSeed(554);
   //noiseSeed(55);
+
   
 
   // Settings for the actual flowfields
@@ -20,7 +21,7 @@ function setup() {
   let noiseScale = 0.005;
   let particleSpeed = 0.005;
   let normalizedSpeed = particleSpeed/noiseScale;
-  let borderlimit = 20; 
+  let borderlimit = 5; 
 
   // For creating multiple flow fields in same window
   let griddivs = 10;
@@ -110,7 +111,7 @@ class FlowField {
     // Iterate over particles
     for (var i = 0; i < this.particles.length; i++) {
       this.particles[i].update(this.gradient);
-      if (this.particles[i].isAlive(this.gradient) ){
+      if (this.particles[i].isAlive(this.gradient, this.borderlimit) ){
         this.particles[i].displayAt(this.originx, this.originy);
       } else {
         // TODO remove the dead particle for performance, or keep regenerating them
@@ -249,13 +250,13 @@ class Point {
     //ellipse(this.x, this.y, 1, 1);
   }
 
-  isAlive(field) {
+  isAlive(field, borderlimit) {
     // Cast the position to a grid index
     let x = floor(this.x/this.screenDivisions);
     let y = floor(this.y/this.screenDivisions);
 
     // Check if x or y is outside the screen
-    if (x < this.borderlimit || x >= field.length || y < 0 || y >= field[0].length) {
+    if (x < borderlimit || x >= field.length - borderlimit || y < borderlimit || y >= field[0].length - borderlimit) {
       return false;
     }
     
