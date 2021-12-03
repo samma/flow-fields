@@ -20,15 +20,26 @@ function setup() {
   let griddivs = 4;
   let gridSize = width/griddivs;
   let gridCoordinates = createGridCoordinates(0, 0, width, height, griddivs);
+  palettes = generatePalettes(gridCoordinates.length);
   
   //iterate over gridcoordinates
   for (let i = 0; i < gridCoordinates.length; i++) {
     let x = gridCoordinates[i].x;
     let y = gridCoordinates[i].y;
-    fields.push(new FlowField(x,y,gridSize,gridSize,screenDivisions,noiseScale,particleSpeed,numparticles,color(0,0,0),palette, borderlimit));
+    fields.push(new FlowField(x,y,gridSize,gridSize,screenDivisions,noiseScale,particleSpeed,numparticles,color(0,0,0),palettes[i], borderlimit));
   }
   
 }
+
+function generatePalettes(numColors) {
+  let palettes = [];
+  for (let i = 0; i < numColors; i++) {
+    let palette = new Palette([color(random(255), random(255), random(255)), color(random(255), random(255), random(255)), color(random(255), random(255), random(255)), color(random(255), random(255), random(255))]);
+    palettes.push(palette);
+  }
+  return palettes;
+}
+
 
 function draw() {
   for (let i = 0; i < fields.length; i++) {
