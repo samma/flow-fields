@@ -17,7 +17,7 @@ function setup() {
   //noiseSeed(55);
 
   // Create a border around the canvas
-  let border = 50;
+  let border = canvasSize/30;
   let width = canvasSize - border*2;
   let height = canvasSize - border*2;
   let originx = border;
@@ -29,7 +29,7 @@ function setup() {
   let noiseScale = 0.005;
   let particleSpeed = 0.005;
   let normalizedSpeed = particleSpeed/noiseScale;
-  let borderlimit = 20; 
+  let marginBetweenFields = border/2; // Border between fields
 
   // For creating multiple flow fields in same window
   let griddivs = 5;
@@ -44,7 +44,7 @@ function setup() {
   for (let i = 0; i < gridCoordinates.length; i++) {
     let x = gridCoordinates[i].x;
     let y = gridCoordinates[i].y;
-    fields.push(new FlowField(x,y,gridSize,gridSize,screenDivisions,noiseScale,normalizedSpeed,numparticles,backgroundColor,palettes[i], borderlimit));
+    fields.push(new FlowField(x,y,gridSize,gridSize,screenDivisions,noiseScale,normalizedSpeed,numparticles,backgroundColor,palettes[i], marginBetweenFields));
   }
 }
 
