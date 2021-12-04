@@ -2,7 +2,7 @@
 
 let fields = [];
 let canvasSize;
-let generateRandom = true;
+let generateRandom = false;
 let defaultseed = 4;
 
 // Like a constructor for the visualization
@@ -60,15 +60,14 @@ function createFlowFieldWithRandomSettings(generateRandomSettings, seed) {
   background(backgroundColor);
 
   if (generateRandomSettings) {
-    
-    let seed = random(0, 100000);
-
+  
     randomSeed(seed);
     noiseSeed(seed);
     
     // Equal chance to create a border or not
-    drawBorders = random(1) > 0.5;
-    border = drawBorders ? canvasSize/30 : 1;
+    drawBorders = random(1) > 1;
+    border = drawBorders ? canvasSize/30 : 0;
+
     width = canvasSize - border*2;
     height = width
     originx = border;
@@ -83,7 +82,7 @@ function createFlowFieldWithRandomSettings(generateRandomSettings, seed) {
     marginBetweenFields = border/2; // Border between fields
 
     // For creating multiple flow fields in same window
-    griddivs = floor(random(1,6));
+    griddivs = floor(random(2,6));
     gridSize = width/griddivs;
     gridCoordinates = createGridCoordinates(originx, originy, width, height, griddivs);
     palettes = Palette.generatePalettes(gridCoordinates.length, random(2,7));
@@ -114,7 +113,6 @@ function createFlowFieldWithRandomSettings(generateRandomSettings, seed) {
     fields.push(new FlowField(x,y,gridSize,gridSize,screenDivisions,noiseScale,normalizedSpeed,numparticles,backgroundColor,palettes[i], marginBetweenFields));
   }
 }
-
 
 class FlowField {
   constructor(originx, originy, width,height,screenDivisions, noiseScale, particleSpeed, numparticles, backgroundColor, palette, borderlimit) {
@@ -150,7 +148,7 @@ class FlowField {
   createField() {
     this.topology = this.generateTopology(this.width / this.screenDivisions, this.height / this.screenDivisions);
     this.topology = this.addPerlinNoise(this.topology, this.width / this.screenDivisions, this.height / this.screenDivisions, this.noiseScale);
-    this.gradient = this.calculateGradient(this.topology, this.width / this.screenDivisions, this.height / this.screenDivisions);
+    this.gradient = this.calculateGradient(this.topology);
   }
   
   initParticles() {
@@ -215,33 +213,35 @@ class FlowField {
     return topology;
   }
 
-  calculateGradient(topology, n, m) {
+  calculateGradient(topology) {
     var gradient = [];
-    for (var i = 0; i < n; i++) {
+    for (var i = 0; i < topology.length; i++) {
       gradient[i] = [];
-      for (var j = 0; j < m; j++) {
-        gradient[i][j] = this.calculateGradientAt(topology, i, j, n, m);
+      for (var j = 0; j < topology[0].length; j++) {
+        gradient[i][j] = this.calculateGradientAt(topology, i, j, topology.length, topology[0].length);
       }
     }
     return gradient
   }
   
   // Calculates the gradient vector at a given point in the topology.
-  calculateGradientAt(topology, i, j, n, m) {
+  calculateGradientAt(topology, i, j) {
     var gradientVec = createVector(0, 0);
     
-    if (i > 0) {
+    if (i > 0 && i < topology.length - 1) {
       gradientVec.x -= topology[i - 1][j];
-    }
-    if (i < n - 1) {
       gradientVec.x += topology[i + 1][j];
+    } else {
+      gradientVec.x = 0;
     }
-    if (j > 0) {
+
+    if (j > 0 && j < topology[0].length - 1) {
       gradientVec.y -= topology[i][j - 1];
-    }
-    if (j < m - 1) { 
       gradientVec.y += topology[i][j + 1];
+    } else {
+      gradientVec.y = 0;
     }
+
     return gradientVec;
   }
 }
@@ -253,8 +253,8 @@ class Point {
     this.y = y;
     this.speed = speed;
     this.screenDivisions = screenDivisions;
-    this.previousX = this.x+1;
-    this.previousY = 0;
+    this.previousX = x+1; // If prev and current is equal they will, the point will be killed
+    this.previousY = y+1;
     this.strokeWeight = random(1, 3);
     this.palette = palette;
 
@@ -268,8 +268,7 @@ class Point {
 
     // Round the position into a grid index
     let x = floor(this.x/this.screenDivisions);
-    let y = floor(this.y/this.screenDivisions);
-
+    let y = floor(this.y/this.screenDivisions);  
 
     // Move perpendicular to gradient
     let perp = this.getPerpendicularVector(field[x][y])
@@ -349,8 +348,8 @@ function generateRandomHSBColor() {
 }
 
 function getrandomPointInWindowWithBorder(width, height, borderlimit) {
-  let x = random(borderlimit, width - borderlimit);
-  let y = random(borderlimit, height - borderlimit);
+  let x = floor(random(borderlimit, width - borderlimit));
+  let y = floor(random(borderlimit, height - borderlimit));
   return createVector(x, y);
 }
 
