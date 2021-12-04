@@ -2,6 +2,8 @@
 
 let fields = [];
 let canvasSize;
+let generateRandom = true;
+let defaultseed = 4;
 
 // Like a constructor for the visualization
 function setup() {
@@ -12,12 +14,12 @@ function setup() {
   colorMode(HSB);
   noStroke();
 
-  // Set seed for random number generator and noise generator
-  //randomSeed(554);
-  //noiseSeed(55);
-
-  //createFlowFieldWithSpecificSettings();
-  createFlowFieldWithRandomSettings();
+  // Juggle the two modes, random off and random on
+  let seed = defaultseed;
+  if (generateRandom) {
+    seed = floor(random(0, 100000));
+  }
+  createFlowFieldWithRandomSettings(generateRandom, seed);
 }
 
 // Loops on every frame
@@ -27,56 +29,12 @@ function draw() {
   }
 }
 
-function createFlowFieldWithRandomSettings() {
+function createFlowFieldWithRandomSettings(generateRandomSettings, seed) {
   // Create a border around the canvas
 
-  // Equal chance to create a border or not
-  let drawBorders = random(1) > 0.5;
-  let border = drawBorders ? canvasSize/30 : 1;
-  let width = canvasSize - border*2;
-  let height = width
-  let originx = border;
-  let originy = border;
-  
-  // Settings for the actual flowfields
-  let screenDivisions = 1;
-  let numparticles = random(5, 1000);
-  let noiseScale = random(0.001, 0.01);
-  let particleSpeed = random(0.005, 0.02);
-  let normalizedSpeed = particleSpeed/noiseScale;
-  let marginBetweenFields = border/2; // Border between fields
+  randomSeed(seed);
+  noiseSeed(seed);
 
-  // For creating multiple flow fields in same window
-  let griddivs = floor(random(1,6));
-  let gridSize = width/griddivs;
-  let gridCoordinates = createGridCoordinates(originx, originy, width, height, griddivs);
-  palettes = Palette.generatePalettes(gridCoordinates.length, random(2,7));
-  
-  
-  //iterate over gridcoordina
-  backgroundColor = generateRandomHSBColor();
-  background(backgroundColor);
-
-  // Print all of the settings to console
-  console.log("numparticles: " + numparticles);
-  console.log("noiseScale: " + noiseScale);
-  console.log("particleSpeed: " + particleSpeed);
-  console.log("normalizedSpeed: " + normalizedSpeed);
-  console.log("marginBetweenFields: " + marginBetweenFields);
-  console.log("griddivs: " + griddivs);
-  console.log("gridSize: " + gridSize);
-  console.log("gridCoordinates: " + gridCoordinates);
-  console.log("palettes: " + palettes);
-
-  for (let i = 0; i < gridCoordinates.length; i++) {
-    let x = gridCoordinates[i].x;
-    let y = gridCoordinates[i].y;
-    fields.push(new FlowField(x,y,gridSize,gridSize,screenDivisions,noiseScale,normalizedSpeed,numparticles,backgroundColor,palettes[i], marginBetweenFields));
-  }
-}
-
-function createFlowFieldWithSpecificSettings() {
-  // Create a border around the canvas
   let border = canvasSize/30;
   let width = canvasSize - border*2;
   let height = canvasSize - border*2;
@@ -95,19 +53,67 @@ function createFlowFieldWithSpecificSettings() {
   let griddivs = 5;
   let gridSize = width/griddivs;
   let gridCoordinates = createGridCoordinates(originx, originy, width, height, griddivs);
-  palettes = Palette.generatePalettes(gridCoordinates.length, 4);
-  
+  let palettes = Palette.generatePalettes(gridCoordinates.length, 4);
+
   //iterate over gridcoordina
   backgroundColor = color(30, 1, 87);
   background(backgroundColor);
 
+  if (generateRandomSettings) {
+    
+    let seed = random(0, 100000);
+
+    randomSeed(seed);
+    noiseSeed(seed);
+    
+    // Equal chance to create a border or not
+    drawBorders = random(1) > 0.5;
+    border = drawBorders ? canvasSize/30 : 1;
+    width = canvasSize - border*2;
+    height = width
+    originx = border;
+    originy = border;
+    
+    // Settings for the actual flowfields
+    screenDivisions = 1;
+    numparticles = random(5, 1000);
+    noiseScale = random(0.001, 0.01);
+    particleSpeed = random(0.005, 0.02);
+    normalizedSpeed = particleSpeed/noiseScale;
+    marginBetweenFields = border/2; // Border between fields
+
+    // For creating multiple flow fields in same window
+    griddivs = floor(random(1,6));
+    gridSize = width/griddivs;
+    gridCoordinates = createGridCoordinates(originx, originy, width, height, griddivs);
+    palettes = Palette.generatePalettes(gridCoordinates.length, random(2,7));
+
+    //iterate over gridcoordina
+    backgroundColor = generateRandomHSBColor();
+    background(backgroundColor)
+
+      // Print all of the settings to console
+    console.log("numparticles: " + numparticles);
+    console.log("noiseScale: " + noiseScale);
+    console.log("particleSpeed: " + particleSpeed);
+    console.log("normalizedSpeed: " + normalizedSpeed);
+    console.log("marginBetweenFields: " + marginBetweenFields);
+    console.log("griddivs: " + griddivs);
+    console.log("gridSize: " + gridSize);
+    console.log("gridCoordinates: " + gridCoordinates);
+    console.log("palettes: " + palettes);
+    console.log("backgroundColor: " + backgroundColor);
+    console.log("drawBorders: " + drawBorders);
+    console.log("seed: " + seed);
+  }
+
+  // Create the flow fields
   for (let i = 0; i < gridCoordinates.length; i++) {
     let x = gridCoordinates[i].x;
     let y = gridCoordinates[i].y;
     fields.push(new FlowField(x,y,gridSize,gridSize,screenDivisions,noiseScale,normalizedSpeed,numparticles,backgroundColor,palettes[i], marginBetweenFields));
   }
 }
-
 
 
 class FlowField {
