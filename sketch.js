@@ -3,7 +3,10 @@
 let fields = [];
 
 function setup() {
-  createCanvas(windowHeight, windowHeight);
+
+  var canvasSize = min(windowWidth, windowHeight);
+
+  createCanvas(canvasSize, canvasSize);
 
   frameRate(60);
   colorMode(HSB);
@@ -15,8 +18,8 @@ function setup() {
 
   // Create a border around the canvas
   let border = 50;
-  let width = windowWidth - border*2;
-  let height = windowHeight - border*2;
+  let width = canvasSize - border*2;
+  let height = canvasSize - border*2;
   let originx = border;
   let originy = border;
   
