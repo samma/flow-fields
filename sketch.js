@@ -2,7 +2,7 @@
 
 let fields = [];
 let canvasSize;
-let generateRandom = false;
+let generateRandom = true;
 let defaultseed = 4;
 
 // Like a constructor for the visualization
@@ -65,7 +65,7 @@ function createFlowFieldWithRandomSettings(generateRandomSettings, seed) {
     noiseSeed(seed);
     
     // Equal chance to create a border or not
-    drawBorders = random(1) > 1;
+    drawBorders = random(1) > 0.5;
     border = drawBorders ? canvasSize/30 : 0;
 
     width = canvasSize - border*2;
