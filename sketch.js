@@ -3,16 +3,23 @@
 let fields = [];
 let canvasSize;
 let generateRandom = true;
-let defaultseed = 1;
+let defaultseed = 1; // 64780 
 
 let enableSaveThumbnail = true;
+let enableSaveTenSecondVideo = true;
+
+const frate = 120; // frame per second animated. Can be set high?
+const videofrate = 60; // Output video
+
+const numSecondsToCapture = 10;
+const numFrames = videofrate*numSecondsToCapture; // num of frames to record
 
 // Like a constructor for the visualization
 function setup() {
 
   canvasSize = min(400, windowHeight);
   createCanvas(canvasSize, canvasSize);
-  frameRate(60);
+  frameRate(frate);
   colorMode(HSB);
   noStroke();
 
@@ -24,9 +31,51 @@ function setup() {
     seed = defaultseed;
 
   }
+
   createFlowFieldWithRandomSettings(generateRandom, seed);
+
+
+  if (enableSaveTenSecondVideo) {
+
+    recordVideoUntilFrame(numFrames);
+  } 
+
 }
 
+function anim() {
+  // Draw the flow field
+  for (let i = 0; i < fields.length; i++) {
+    fields[i].update();  
+  }
+}
+
+function recordVideoUntilFrame(numFrames) {
+    HME.createH264MP4Encoder().then(async encoder => {
+      encoder.outputFilename = 'Flow-Field-' + str(seed) + '.png';
+      encoder.width = canvasSize;
+      encoder.height = canvasSize;
+      encoder.frameRate = videofrate;
+      encoder.kbps = 50000; // video quality
+      encoder.groupOfPictures = 10; // lower if you have fast actions.
+      encoder.initialize();
+
+      for (let i = 0; i < numFrames; i++) {
+          anim()
+          encoder.addFrameRgba(drawingContext.getImageData(0, 0, canvas.width, canvas.height).data)
+          await new Promise(resolve => window.requestAnimationFrame(resolve))
+      }
+
+      encoder.finalize()
+      if (enableSaveTenSecondVideo) {
+          const uint8Array = encoder.FS.readFile(encoder.outputFilename);
+          const anchor = document.createElement('a');
+          anchor.href = URL.createObjectURL(new Blob([uint8Array], { type: 'video/mp4' }));
+          anchor.download = encoder.outputFilename;
+          anchor.click();
+      }
+      encoder.delete()
+  })
+}
 
 
 function saveThumbnail() {
@@ -49,7 +98,7 @@ function draw() {
   for (let i = 0; i < fields.length; i++) {
     for (let j = 0; j < 10; j++) {
       // Draw the flow field
-      fields[i].update();  
+      //fields[i].update();  
     }    
   }
 }
