@@ -5,6 +5,8 @@ let canvasSize;
 let generateRandom = true;
 let defaultseed = 1;
 
+let enableSaveThumbnail = true;
+
 // Like a constructor for the visualization
 function setup() {
 
@@ -25,18 +27,32 @@ function setup() {
   createFlowFieldWithRandomSettings(generateRandom, seed);
 }
 
+
+
+function saveThumbnail() {
+  saveThumbnailAtFrame(2);
+  saveThumbnailAtFrame(100);
+  saveThumbnailAtFrame(500); 
+}
+
+function saveThumbnailAtFrame(frameToSave) {
+  if (frameCount == frameToSave) {
+    saveCanvas(canvas, 'Flow-Field-' + str(seed) +'-frame'+frameCount, 'png');
+  }
+}
+
 // Loops on every frame
 function draw() {
 
+  //saveThumbnail();
+  
   for (let i = 0; i < fields.length; i++) {
-    // do 5 times 
     for (let j = 0; j < 10; j++) {
       // Draw the flow field
       fields[i].update();  
     }    
   }
 }
-
 
 
 function createFlowFieldWithRandomSettings(generateRandomSettings, seed) {
@@ -263,9 +279,9 @@ class Point {
     this.y = y;
     this.speed = speed;
     this.screenDivisions = screenDivisions;
-    this.previousX = x+1; // If prev and current is equal they will, the point will be killed
+    this.previousX = x+1; // If prev and currenst is equal they will, the point will be killed
     this.previousY = y+1;
-    this.strokeWeight = random(1, 3);
+    this.strokeWeight = random(2, 4);
     this.palette = palette;
 
     // Set the color to a color from a theme
