@@ -3,31 +3,41 @@
 let fields = [];
 let canvasSize;
 let generateRandom = true;
-let defaultseed = 4;
+let defaultseed = 1;
 
 // Like a constructor for the visualization
 function setup() {
-  canvasSize = min(windowWidth, windowHeight);
-  createCanvas(canvasSize, canvasSize);
 
+  canvasSize = min(400, windowHeight);
+  createCanvas(canvasSize, canvasSize);
   frameRate(60);
   colorMode(HSB);
   noStroke();
 
   // Juggle the two modes, random off and random on
-  let seed = defaultseed;
+  //let seed = defaultseed;
   if (generateRandom) {
     seed = floor(random(0, 100000));
+  } else {
+    seed = defaultseed;
+
   }
   createFlowFieldWithRandomSettings(generateRandom, seed);
 }
 
 // Loops on every frame
 function draw() {
+
   for (let i = 0; i < fields.length; i++) {
-    fields[i].update();  
+    // do 5 times 
+    for (let j = 0; j < 10; j++) {
+      // Draw the flow field
+      fields[i].update();  
+    }    
   }
 }
+
+
 
 function createFlowFieldWithRandomSettings(generateRandomSettings, seed) {
   // Create a border around the canvas
@@ -45,12 +55,12 @@ function createFlowFieldWithRandomSettings(generateRandomSettings, seed) {
   let screenDivisions = 1;
   let numparticles = 100;
   let noiseScale = 0.005;
-  let particleSpeed = 0.005;
+  let particleSpeed = 0.001;
   let normalizedSpeed = particleSpeed/noiseScale;
   let marginBetweenFields = border/2; // Border between fields
 
   // For creating multiple flow fields in same window
-  let griddivs = 5;
+  let griddivs = 1;
   let gridSize = width/griddivs;
   let gridCoordinates = createGridCoordinates(originx, originy, width, height, griddivs);
   let palettes = Palette.generatePalettes(gridCoordinates.length, 4);
@@ -65,7 +75,7 @@ function createFlowFieldWithRandomSettings(generateRandomSettings, seed) {
     noiseSeed(seed);
     
     // Equal chance to create a border or not
-    drawBorders = random(1) > 0.5;
+    drawBorders = random(1) > 0;
     border = drawBorders ? canvasSize/30 : 0;
 
     width = canvasSize - border*2;
@@ -77,12 +87,12 @@ function createFlowFieldWithRandomSettings(generateRandomSettings, seed) {
     screenDivisions = 1;
     numparticles = random(5, 1000);
     noiseScale = random(0.001, 0.01);
-    particleSpeed = random(0.005, 0.02);
+    particleSpeed = 0.00075;
     normalizedSpeed = particleSpeed/noiseScale;
     marginBetweenFields = border/2; // Border between fields
 
     // For creating multiple flow fields in same window
-    griddivs = floor(random(2,6));
+    griddivs = floor(1);
     gridSize = width/griddivs;
     gridCoordinates = createGridCoordinates(originx, originy, width, height, griddivs);
     palettes = Palette.generatePalettes(gridCoordinates.length, random(2,7));
@@ -370,3 +380,4 @@ function createGridCoordinates(originx, originy, width, height, gridSize) {
   }
   return gridCoordinates;
 }
+
