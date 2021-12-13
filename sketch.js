@@ -3,7 +3,8 @@
 let fields = [];
 let canvasSize;
 let generateRandom = true;
-let defaultseed = 64780; // 64780 
+
+let defaultseed = 333; 
 
 let enableSaveThumbnail = true;
 let enableSaveTenSecondVideo = true;
@@ -161,7 +162,7 @@ function createFlowFieldWithRandomSettings(generateRandomSettings, seed) {
     originy = border;
     
     // Settings for the actual flowfields
-    screenDivisions = 1;
+    screenDivisions = 2*random(1,4);
     numparticles = random(20, 1500);
     noiseScale = random(0.0005, 0.007);
     particleSpeed = random(0.002, 0.03);
@@ -178,7 +179,8 @@ function createFlowFieldWithRandomSettings(generateRandomSettings, seed) {
     backgroundColor = color(30, 1, 87); //generateRandomHSBColor();
     background(backgroundColor)
 
-      // Print all of the settings to console
+    // Print all of the settings to console
+    console.log("screenDivisions" + screenDivisions);
     console.log("numparticles: " + numparticles);
     console.log("noiseScale: " + noiseScale);
     console.log("particleSpeed: " + particleSpeed);
@@ -191,6 +193,7 @@ function createFlowFieldWithRandomSettings(generateRandomSettings, seed) {
     console.log("backgroundColor: " + backgroundColor);
     console.log("drawBorders: " + drawBorders);
     console.log("seed: " + seed);
+
   }
 
   // Create the flow fields
@@ -342,7 +345,7 @@ class Point {
     this.screenDivisions = screenDivisions;
     this.previousX = x+1; // If prev and currenst is equal they will, the point will be killed
     this.previousY = y+1;
-    this.strokeWeight = 2.0*random(1, 2);
+    this.strokeWeight = random(1, 3)*random(1, 4);
     this.palette = palette;
 
     // Set the color to a color from a theme
