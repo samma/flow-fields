@@ -3,22 +3,22 @@
 let fields = [];
 let canvasSize;
 let generateRandom = true;
-let defaultseed = 0; // 64780 
+let defaultseed = 64780; // 64780 
 
 let enableSaveThumbnail = true;
 let enableSaveTenSecondVideo = true;
 
 let projectName = "Flow-Fields-";
 
-const frate = 45; // frame per second animated. Can be set high?
-const videofrate = 45; // Output video
+const frate = 30; // frame per second animated. Can be set high?
+const videofrate = 30; // Output video
 
-const numSecondsToCapture = 2;
+const numSecondsToCapture = 16;
 const numFrames = videofrate*numSecondsToCapture; // num of frames to record
-const numSecondsToSkipAtStart = 1;
+const numSecondsToSkipAtStart = 0.5;
 const numFramesToSkipAtStart = videofrate*numSecondsToSkipAtStart;
 
-const numFieldsToGenerate = 1;
+const numFieldsToGenerate = 5;
 
 var frameCount = 0;
 
@@ -74,7 +74,7 @@ async function recordVideoUntilFrame(numFrames, seed, numFramesToSkipAtStart, fi
       encoder.height = canvasSize;
       encoder.frameRate = videofrate;
       encoder.kbps = 10000; // video quality
-      encoder.groupOfPictures = 45; // lower if you have fast actions.
+      encoder.groupOfPictures = 30; // lower if you have fast actions.
       encoder.initialize();
 
       for (let frameCount = 0; frameCount < numFramesToSkipAtStart+numFrames; frameCount++) {
@@ -153,7 +153,7 @@ function createFlowFieldWithRandomSettings(generateRandomSettings, seed) {
     
     // Equal chance to create a border or not
     drawBorders = true;
-    border = drawBorders ? canvasSize/50 : 0;
+    border = drawBorders ? canvasSize/45 : 0;
 
     width = canvasSize - border*2;
     height = width
@@ -161,10 +161,10 @@ function createFlowFieldWithRandomSettings(generateRandomSettings, seed) {
     originy = border;
     
     // Settings for the actual flowfields
-    screenDivisions = 4;
-    numparticles = random(5, 1000);
-    noiseScale = random(0.001, 0.02);
-    particleSpeed = random(0.002, 0.02);
+    screenDivisions = 1;
+    numparticles = random(20, 1500);
+    noiseScale = random(0.0005, 0.007);
+    particleSpeed = random(0.002, 0.03);
     normalizedSpeed = particleSpeed/noiseScale;
     marginBetweenFields = border/2; // Border between fields
 
@@ -175,7 +175,7 @@ function createFlowFieldWithRandomSettings(generateRandomSettings, seed) {
     palettes = Palette.generatePalettes(gridCoordinates.length, random(2,5));
 
     //iterate over gridcoordina
-    backgroundColor = generateRandomHSBColor();
+    backgroundColor = color(30, 1, 87); //generateRandomHSBColor();
     background(backgroundColor)
 
       // Print all of the settings to console
@@ -342,7 +342,7 @@ class Point {
     this.screenDivisions = screenDivisions;
     this.previousX = x+1; // If prev and currenst is equal they will, the point will be killed
     this.previousY = y+1;
-    this.strokeWeight = random(2, 5);
+    this.strokeWeight = 2.0*random(1, 2);
     this.palette = palette;
 
     // Set the color to a color from a theme
