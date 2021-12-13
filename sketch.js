@@ -3,44 +3,53 @@
 let fields = [];
 let canvasSize;
 let generateRandom = true;
-let defaultseed = 1; // 64780 
+let defaultseed = 0; // 64780 
 
 let enableSaveThumbnail = true;
 let enableSaveTenSecondVideo = true;
 
-const frate = 60; // frame per second animated. Can be set high?
-const videofrate = 60; // Output video
+let projectName = "Flow-Fields-";
 
-const numSecondsToCapture = 20;
+const frate = 45; // frame per second animated. Can be set high?
+const videofrate = 45; // Output video
+
+const numSecondsToCapture = 2;
 const numFrames = videofrate*numSecondsToCapture; // num of frames to record
+const numSecondsToSkipAtStart = 1;
+const numFramesToSkipAtStart = videofrate*numSecondsToSkipAtStart;
+
+const numFieldsToGenerate = 1;
+
+var frameCount = 0;
 
 // Like a constructor for the visualization
 function setup() {
 
-  canvasSize = min(500, windowHeight);
+  canvasSize = min(800, 800);
   createCanvas(canvasSize, canvasSize);
   frameRate(frate);
   colorMode(HSB);
   noStroke();
 
-  // Juggle the two modes, random off and random on
-  //let seed = defaultseed;
-  if (generateRandom) {
-    seed = floor(random(0, 100000));
-  } else {
-    seed = defaultseed;
-
-  }
-
-  createFlowFieldWithRandomSettings(generateRandom, seed);
-
-
-  if (enableSaveTenSecondVideo) {
-
-    recordVideoUntilFrame(numFrames);
-  } 
+  renderVideos(numFieldsToGenerate, defaultseed).then(() => { console.log("Done end of setup"); });
 
 }
+
+async function renderVideos(n, defaultseed) {
+  let seed = defaultseed;
+  for(let i = 0; i < n; i++) {
+    // render video and wait until it is finished before continuing the loop
+    await new Promise(doneRecording => window.recordVideos(1, seed, doneRecording));
+    seed = seed + 1;
+
+    // Clea old data
+    fields = [];
+    // clear the canvas
+    noStroke();
+
+  }
+}
+
 
 function anim() {
   // Draw the flow field
@@ -49,20 +58,33 @@ function anim() {
   }
 }
 
-function recordVideoUntilFrame(numFrames) {
+async function recordVideos(n, seed, doneRecording) {
+    console.log("Recording seed: " + seed);
+    createFlowFieldWithRandomSettings(generateRandom, seed);
+    await new Promise(finRender => recordVideoUntilFrame(numFrames, seed, numFramesToSkipAtStart, finRender));
+    console.log("Done recording seed: " + seed);
+    doneRecording();
+}
+
+async function recordVideoUntilFrame(numFrames, seed, numFramesToSkipAtStart, finRender) {
+
     HME.createH264MP4Encoder().then(async encoder => {
-      encoder.outputFilename = 'Flow-Field-' + str(seed) + '.png';
+      encoder.outputFilename = projectName + str(seed) + '.png';
       encoder.width = canvasSize;
       encoder.height = canvasSize;
       encoder.frameRate = videofrate;
-      encoder.kbps = 5000; // video quality
-      encoder.groupOfPictures = 60; // lower if you have fast actions.
+      encoder.kbps = 10000; // video quality
+      encoder.groupOfPictures = 45; // lower if you have fast actions.
       encoder.initialize();
 
-      for (let i = 0; i < numFrames; i++) {
-          anim();
+      for (let frameCount = 0; frameCount < numFramesToSkipAtStart+numFrames; frameCount++) {
+        anim();
+        if (frameCount >= numFramesToSkipAtStart) {
+          saveThumbnail(seed, frameCount);
+
           encoder.addFrameRgba(drawingContext.getImageData(0, 0, canvasSize, canvasSize).data)
           await new Promise(resolve => window.requestAnimationFrame(resolve))
+        }
       }
 
       encoder.finalize()
@@ -74,34 +96,24 @@ function recordVideoUntilFrame(numFrames) {
           anchor.click();
       }
       encoder.delete()
+      console.log("encoder delete");
+      finRender();
   })
 }
 
 
-function saveThumbnail() {
-  saveThumbnailAtFrame(2);
-  saveThumbnailAtFrame(100);
-  saveThumbnailAtFrame(numFrames); 
+function saveThumbnail(seed, frameCount) {
+  saveThumbnailAtFrame(2, seed, frameCount);
+  saveThumbnailAtFrame(100, seed, frameCount);
+  saveThumbnailAtFrame(1000, seed, frameCount); 
 }
 
-function saveThumbnailAtFrame(frameToSave) {
+function saveThumbnailAtFrame(frameToSave, seed, frameCount) {
   if (frameCount == frameToSave) {
-    saveCanvas(canvas, 'Flow-Field-' + str(seed) +'-frame'+frameCount, 'png');
+    saveCanvas(canvas, projectName + str(seed) +'-frame'+frameCount, 'png');
   }
 }
 
-// Loops on every frame
-function draw() {
-
-  saveThumbnail();
-  
-  for (let i = 0; i < fields.length; i++) {
-    for (let j = 0; j < 10; j++) {
-      // Draw the flow field
-      //fields[i].update();  
-    }    
-  }
-}
 
 
 function createFlowFieldWithRandomSettings(generateRandomSettings, seed) {
@@ -117,15 +129,15 @@ function createFlowFieldWithRandomSettings(generateRandomSettings, seed) {
   let originy = border;
   
   // Settings for the actual flowfields
-  let screenDivisions = 1;
+  let screenDivisions = 5;
   let numparticles = 100;
   let noiseScale = 0.005;
-  let particleSpeed = 0.001;
+  let particleSpeed = 0.0015;
   let normalizedSpeed = particleSpeed/noiseScale;
   let marginBetweenFields = border/2; // Border between fields
 
   // For creating multiple flow fields in same window
-  let griddivs = 1;
+  let griddivs = 5;
   let gridSize = width/griddivs;
   let gridCoordinates = createGridCoordinates(originx, originy, width, height, griddivs);
   let palettes = Palette.generatePalettes(gridCoordinates.length, 4);
@@ -140,8 +152,8 @@ function createFlowFieldWithRandomSettings(generateRandomSettings, seed) {
     noiseSeed(seed);
     
     // Equal chance to create a border or not
-    drawBorders = random(1) > 0;
-    border = drawBorders ? canvasSize/30 : 0;
+    drawBorders = true;
+    border = drawBorders ? canvasSize/50 : 0;
 
     width = canvasSize - border*2;
     height = width
@@ -149,10 +161,10 @@ function createFlowFieldWithRandomSettings(generateRandomSettings, seed) {
     originy = border;
     
     // Settings for the actual flowfields
-    screenDivisions = 1;
+    screenDivisions = 4;
     numparticles = random(5, 1000);
-    noiseScale = random(0.001, 0.01);
-    particleSpeed = random(0.001, 0.008);
+    noiseScale = random(0.001, 0.02);
+    particleSpeed = random(0.002, 0.02);
     normalizedSpeed = particleSpeed/noiseScale;
     marginBetweenFields = border/2; // Border between fields
 
@@ -160,7 +172,7 @@ function createFlowFieldWithRandomSettings(generateRandomSettings, seed) {
     griddivs = floor(1);
     gridSize = width/griddivs;
     gridCoordinates = createGridCoordinates(originx, originy, width, height, griddivs);
-    palettes = Palette.generatePalettes(gridCoordinates.length, random(2,4));
+    palettes = Palette.generatePalettes(gridCoordinates.length, random(2,5));
 
     //iterate over gridcoordina
     backgroundColor = generateRandomHSBColor();
@@ -330,7 +342,7 @@ class Point {
     this.screenDivisions = screenDivisions;
     this.previousX = x+1; // If prev and currenst is equal they will, the point will be killed
     this.previousY = y+1;
-    this.strokeWeight = random(2, 6);
+    this.strokeWeight = random(2, 5);
     this.palette = palette;
 
     // Set the color to a color from a theme
