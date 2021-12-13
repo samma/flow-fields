@@ -8,16 +8,16 @@ let defaultseed = 1; // 64780
 let enableSaveThumbnail = true;
 let enableSaveTenSecondVideo = true;
 
-const frate = 120; // frame per second animated. Can be set high?
+const frate = 60; // frame per second animated. Can be set high?
 const videofrate = 60; // Output video
 
-const numSecondsToCapture = 10;
+const numSecondsToCapture = 20;
 const numFrames = videofrate*numSecondsToCapture; // num of frames to record
 
 // Like a constructor for the visualization
 function setup() {
 
-  canvasSize = min(400, windowHeight);
+  canvasSize = min(500, windowHeight);
   createCanvas(canvasSize, canvasSize);
   frameRate(frate);
   colorMode(HSB);
@@ -55,13 +55,13 @@ function recordVideoUntilFrame(numFrames) {
       encoder.width = canvasSize;
       encoder.height = canvasSize;
       encoder.frameRate = videofrate;
-      encoder.kbps = 50000; // video quality
-      encoder.groupOfPictures = 10; // lower if you have fast actions.
+      encoder.kbps = 5000; // video quality
+      encoder.groupOfPictures = 60; // lower if you have fast actions.
       encoder.initialize();
 
       for (let i = 0; i < numFrames; i++) {
-          anim()
-          encoder.addFrameRgba(drawingContext.getImageData(0, 0, canvas.width, canvas.height).data)
+          anim();
+          encoder.addFrameRgba(drawingContext.getImageData(0, 0, canvasSize, canvasSize).data)
           await new Promise(resolve => window.requestAnimationFrame(resolve))
       }
 
@@ -81,7 +81,7 @@ function recordVideoUntilFrame(numFrames) {
 function saveThumbnail() {
   saveThumbnailAtFrame(2);
   saveThumbnailAtFrame(100);
-  saveThumbnailAtFrame(500); 
+  saveThumbnailAtFrame(numFrames); 
 }
 
 function saveThumbnailAtFrame(frameToSave) {
@@ -93,7 +93,7 @@ function saveThumbnailAtFrame(frameToSave) {
 // Loops on every frame
 function draw() {
 
-  //saveThumbnail();
+  saveThumbnail();
   
   for (let i = 0; i < fields.length; i++) {
     for (let j = 0; j < 10; j++) {
@@ -152,7 +152,7 @@ function createFlowFieldWithRandomSettings(generateRandomSettings, seed) {
     screenDivisions = 1;
     numparticles = random(5, 1000);
     noiseScale = random(0.001, 0.01);
-    particleSpeed = 0.00075;
+    particleSpeed = random(0.001, 0.008);
     normalizedSpeed = particleSpeed/noiseScale;
     marginBetweenFields = border/2; // Border between fields
 
@@ -160,7 +160,7 @@ function createFlowFieldWithRandomSettings(generateRandomSettings, seed) {
     griddivs = floor(1);
     gridSize = width/griddivs;
     gridCoordinates = createGridCoordinates(originx, originy, width, height, griddivs);
-    palettes = Palette.generatePalettes(gridCoordinates.length, random(2,7));
+    palettes = Palette.generatePalettes(gridCoordinates.length, random(2,4));
 
     //iterate over gridcoordina
     backgroundColor = generateRandomHSBColor();
@@ -330,11 +330,12 @@ class Point {
     this.screenDivisions = screenDivisions;
     this.previousX = x+1; // If prev and currenst is equal they will, the point will be killed
     this.previousY = y+1;
-    this.strokeWeight = random(2, 4);
+    this.strokeWeight = random(2, 6);
     this.palette = palette;
 
     // Set the color to a color from a theme
     this.color = this.palette.getRandomColor();
+    this.color.setAlpha(10);
   }
 
   update(field) {
