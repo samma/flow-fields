@@ -1,22 +1,115 @@
 // Creates a flow field and displays it with some moving particles
 
 let fields = [];
+let canvasSize;
+let generateRandom = true;
+let defaultseed = 1; // 64780 
 
+let enableSaveThumbnail = true;
+let enableSaveTenSecondVideo = true;
+
+const frate = 60; // frame per second animated. Can be set high?
+const videofrate = 60; // Output video
+
+const numSecondsToCapture = 20;
+const numFrames = videofrate*numSecondsToCapture; // num of frames to record
+
+// Like a constructor for the visualization
 function setup() {
 
-  var canvasSize = min(windowWidth, windowHeight);
-
+  canvasSize = min(500, windowHeight);
   createCanvas(canvasSize, canvasSize);
-
-  frameRate(60);
+  frameRate(frate);
   colorMode(HSB);
   noStroke();
 
-  // Set seed for random number generator and noise generator
-  //randomSeed(554);
-  //noiseSeed(55);
+  // Juggle the two modes, random off and random on
+  //let seed = defaultseed;
+  if (generateRandom) {
+    seed = floor(random(0, 100000));
+  } else {
+    seed = defaultseed;
 
+  }
+
+  createFlowFieldWithRandomSettings(generateRandom, seed);
+
+
+  if (enableSaveTenSecondVideo) {
+
+    recordVideoUntilFrame(numFrames);
+  } 
+
+}
+
+function anim() {
+  // Draw the flow field
+  for (let i = 0; i < fields.length; i++) {
+    fields[i].update();  
+  }
+}
+
+function recordVideoUntilFrame(numFrames) {
+    HME.createH264MP4Encoder().then(async encoder => {
+      encoder.outputFilename = 'Flow-Field-' + str(seed) + '.png';
+      encoder.width = canvasSize;
+      encoder.height = canvasSize;
+      encoder.frameRate = videofrate;
+      encoder.kbps = 5000; // video quality
+      encoder.groupOfPictures = 60; // lower if you have fast actions.
+      encoder.initialize();
+
+      for (let i = 0; i < numFrames; i++) {
+          anim();
+          encoder.addFrameRgba(drawingContext.getImageData(0, 0, canvasSize, canvasSize).data)
+          await new Promise(resolve => window.requestAnimationFrame(resolve))
+      }
+
+      encoder.finalize()
+      if (enableSaveTenSecondVideo) {
+          const uint8Array = encoder.FS.readFile(encoder.outputFilename);
+          const anchor = document.createElement('a');
+          anchor.href = URL.createObjectURL(new Blob([uint8Array], { type: 'video/mp4' }));
+          anchor.download = encoder.outputFilename;
+          anchor.click();
+      }
+      encoder.delete()
+  })
+}
+
+
+function saveThumbnail() {
+  saveThumbnailAtFrame(2);
+  saveThumbnailAtFrame(100);
+  saveThumbnailAtFrame(numFrames); 
+}
+
+function saveThumbnailAtFrame(frameToSave) {
+  if (frameCount == frameToSave) {
+    saveCanvas(canvas, 'Flow-Field-' + str(seed) +'-frame'+frameCount, 'png');
+  }
+}
+
+// Loops on every frame
+function draw() {
+
+  saveThumbnail();
+  
+  for (let i = 0; i < fields.length; i++) {
+    for (let j = 0; j < 10; j++) {
+      // Draw the flow field
+      //fields[i].update();  
+    }    
+  }
+}
+
+
+function createFlowFieldWithRandomSettings(generateRandomSettings, seed) {
   // Create a border around the canvas
+
+  randomSeed(seed);
+  noiseSeed(seed);
+
   let border = canvasSize/30;
   let width = canvasSize - border*2;
   let height = canvasSize - border*2;
@@ -27,30 +120,72 @@ function setup() {
   let screenDivisions = 1;
   let numparticles = 100;
   let noiseScale = 0.005;
-  let particleSpeed = 0.005;
+  let particleSpeed = 0.001;
   let normalizedSpeed = particleSpeed/noiseScale;
   let marginBetweenFields = border/2; // Border between fields
 
   // For creating multiple flow fields in same window
-  let griddivs = 5;
+  let griddivs = 1;
   let gridSize = width/griddivs;
   let gridCoordinates = createGridCoordinates(originx, originy, width, height, griddivs);
-  palettes = Palette.generatePalettes(gridCoordinates.length, 4);
-  
+  let palettes = Palette.generatePalettes(gridCoordinates.length, 4);
+
   //iterate over gridcoordina
   backgroundColor = color(30, 1, 87);
   background(backgroundColor);
 
+  if (generateRandomSettings) {
+  
+    randomSeed(seed);
+    noiseSeed(seed);
+    
+    // Equal chance to create a border or not
+    drawBorders = random(1) > 0;
+    border = drawBorders ? canvasSize/30 : 0;
+
+    width = canvasSize - border*2;
+    height = width
+    originx = border;
+    originy = border;
+    
+    // Settings for the actual flowfields
+    screenDivisions = 1;
+    numparticles = random(5, 1000);
+    noiseScale = random(0.001, 0.01);
+    particleSpeed = random(0.001, 0.008);
+    normalizedSpeed = particleSpeed/noiseScale;
+    marginBetweenFields = border/2; // Border between fields
+
+    // For creating multiple flow fields in same window
+    griddivs = floor(1);
+    gridSize = width/griddivs;
+    gridCoordinates = createGridCoordinates(originx, originy, width, height, griddivs);
+    palettes = Palette.generatePalettes(gridCoordinates.length, random(2,4));
+
+    //iterate over gridcoordina
+    backgroundColor = generateRandomHSBColor();
+    background(backgroundColor)
+
+      // Print all of the settings to console
+    console.log("numparticles: " + numparticles);
+    console.log("noiseScale: " + noiseScale);
+    console.log("particleSpeed: " + particleSpeed);
+    console.log("normalizedSpeed: " + normalizedSpeed);
+    console.log("marginBetweenFields: " + marginBetweenFields);
+    console.log("griddivs: " + griddivs);
+    console.log("gridSize: " + gridSize);
+    console.log("gridCoordinates: " + gridCoordinates);
+    console.log("palettes: " + palettes);
+    console.log("backgroundColor: " + backgroundColor);
+    console.log("drawBorders: " + drawBorders);
+    console.log("seed: " + seed);
+  }
+
+  // Create the flow fields
   for (let i = 0; i < gridCoordinates.length; i++) {
     let x = gridCoordinates[i].x;
     let y = gridCoordinates[i].y;
     fields.push(new FlowField(x,y,gridSize,gridSize,screenDivisions,noiseScale,normalizedSpeed,numparticles,backgroundColor,palettes[i], marginBetweenFields));
-  }
-}
-
-function draw() {
-  for (let i = 0; i < fields.length; i++) {
-    fields[i].update();  
   }
 }
 
@@ -88,7 +223,7 @@ class FlowField {
   createField() {
     this.topology = this.generateTopology(this.width / this.screenDivisions, this.height / this.screenDivisions);
     this.topology = this.addPerlinNoise(this.topology, this.width / this.screenDivisions, this.height / this.screenDivisions, this.noiseScale);
-    this.gradient = this.calculateGradient(this.topology, this.width / this.screenDivisions, this.height / this.screenDivisions);
+    this.gradient = this.calculateGradient(this.topology);
   }
   
   initParticles() {
@@ -153,33 +288,35 @@ class FlowField {
     return topology;
   }
 
-  calculateGradient(topology, n, m) {
+  calculateGradient(topology) {
     var gradient = [];
-    for (var i = 0; i < n; i++) {
+    for (var i = 0; i < topology.length; i++) {
       gradient[i] = [];
-      for (var j = 0; j < m; j++) {
-        gradient[i][j] = this.calculateGradientAt(topology, i, j, n, m);
+      for (var j = 0; j < topology[0].length; j++) {
+        gradient[i][j] = this.calculateGradientAt(topology, i, j, topology.length, topology[0].length);
       }
     }
     return gradient
   }
   
   // Calculates the gradient vector at a given point in the topology.
-  calculateGradientAt(topology, i, j, n, m) {
+  calculateGradientAt(topology, i, j) {
     var gradientVec = createVector(0, 0);
     
-    if (i > 0) {
+    if (i > 0 && i < topology.length - 1) {
       gradientVec.x -= topology[i - 1][j];
-    }
-    if (i < n - 1) {
       gradientVec.x += topology[i + 1][j];
+    } else {
+      gradientVec.x = 0;
     }
-    if (j > 0) {
+
+    if (j > 0 && j < topology[0].length - 1) {
       gradientVec.y -= topology[i][j - 1];
-    }
-    if (j < m - 1) { 
       gradientVec.y += topology[i][j + 1];
+    } else {
+      gradientVec.y = 0;
     }
+
     return gradientVec;
   }
 }
@@ -191,13 +328,14 @@ class Point {
     this.y = y;
     this.speed = speed;
     this.screenDivisions = screenDivisions;
-    this.previousX = this.x+1;
-    this.previousY = 0;
-    this.strokeWeight = random(1, 3);
+    this.previousX = x+1; // If prev and currenst is equal they will, the point will be killed
+    this.previousY = y+1;
+    this.strokeWeight = random(2, 6);
     this.palette = palette;
 
     // Set the color to a color from a theme
     this.color = this.palette.getRandomColor();
+    this.color.setAlpha(10);
   }
 
   update(field) {
@@ -206,8 +344,7 @@ class Point {
 
     // Round the position into a grid index
     let x = floor(this.x/this.screenDivisions);
-    let y = floor(this.y/this.screenDivisions);
-
+    let y = floor(this.y/this.screenDivisions);  
 
     // Move perpendicular to gradient
     let perp = this.getPerpendicularVector(field[x][y])
@@ -287,8 +424,8 @@ function generateRandomHSBColor() {
 }
 
 function getrandomPointInWindowWithBorder(width, height, borderlimit) {
-  let x = random(borderlimit, width - borderlimit);
-  let y = random(borderlimit, height - borderlimit);
+  let x = floor(random(borderlimit, width - borderlimit));
+  let y = floor(random(borderlimit, height - borderlimit));
   return createVector(x, y);
 }
 
@@ -309,3 +446,4 @@ function createGridCoordinates(originx, originy, width, height, gridSize) {
   }
   return gridCoordinates;
 }
+
