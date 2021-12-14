@@ -1,10 +1,13 @@
 // Creates a flow field and displays it with some moving particles
-
+// Changes during rendering work: //0, 5 (60 fps half speed particles), 20, 23, 37 (groupOfPictures increased), 56 (screnshotting at 1000 now),
+// 73 (Added saving of settings), 61 more settings, more fields generated etc.
 let fields = [];
 let canvasSize;
 let generateRandom = true;
 
-let defaultseed = 53; //0, 5 (60 fps half speed particles), 20, 23, 37 (groupOfPictures increased), 53 (screnshotting at 1000 now),
+const targetNumOfPaintingsToGenerate = 1250;
+let defaultseed = 61; 
+
 
 let enableSaveThumbnail = true;
 let enableSaveTenSecondVideo = true;
@@ -19,7 +22,7 @@ const numFrames = videofrate*numSecondsToCapture; // num of frames to record
 const numSecondsToSkipAtStart = 0.5;
 const numFramesToSkipAtStart = videofrate*numSecondsToSkipAtStart;
 
-const numFieldsToGenerate = 100;
+const numFieldsToGenerate = targetNumOfPaintingsToGenerate-defaultseed;
 
 var frameCount = 0;
 
@@ -81,7 +84,7 @@ async function recordVideoUntilFrame(numFrames, seed, numFramesToSkipAtStart, fi
       for (let frameCount = 0; frameCount < numFramesToSkipAtStart+numFrames; frameCount++) {
         anim();
         if (frameCount >= numFramesToSkipAtStart) {
-          saveThumbnail(seed, frameCount, numFramesToSkipAtStart+numFrames);
+          saveThumbnail(seed, frameCount, numFramesToSkipAtStart+numFrames-1);
 
           encoder.addFrameRgba(drawingContext.getImageData(0, 0, canvasSize, canvasSize).data)
           await new Promise(resolve => window.requestAnimationFrame(resolve))
@@ -193,7 +196,40 @@ function createFlowFieldWithRandomSettings(generateRandomSettings, seed) {
     console.log("drawBorders: " + drawBorders);
     console.log("seed: " + seed);
 
+    // Write all the settings to a JSON file
+    let settings = {
+      "seed": seed,
+      "screenDivisions": screenDivisions,
+      "numparticles": numparticles,
+      "noiseScale": noiseScale,
+      "particleSpeed": particleSpeed,
+      "normalizedSpeed": normalizedSpeed,
+      "marginBetweenFields": marginBetweenFields,
+      "griddivs": griddivs,
+      "gridSize": gridSize,
+      "palettes": palettes,
+      "backgroundColor": backgroundColor,
+      "drawBorders": drawBorders,
+      "projectName": projectName,
+      "canvasSize": canvasSize,
+      "videofrate": videofrate,
+      "enableSaveTenSecondVideo": enableSaveTenSecondVideo,
+      "numFramesToSkipAtStart": numFramesToSkipAtStart,
+      "numFrames": numFrames
+    };
+
+    downloadJSON(projectName + str(seed) + '-settings.json', settings);
+
+  
+  // Download an object as a JSON file with error handling
+  function downloadJSON(filename, data) {
+    var a = document.createElement("a");
+    a.download = filename;
+    a.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data));
+    a.click();
   }
+
+}
 
   // Create the flow fields
   for (let i = 0; i < gridCoordinates.length; i++) {
