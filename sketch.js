@@ -4,22 +4,22 @@ let fields = [];
 let canvasSize;
 let generateRandom = true;
 
-let defaultseed = 333; 
+let defaultseed = 53; //0, 5 (60 fps half speed particles), 20, 23, 37 (groupOfPictures increased), 53 (screnshotting at 1000 now),
 
 let enableSaveThumbnail = true;
 let enableSaveTenSecondVideo = true;
 
 let projectName = "Flow-Fields-";
 
-const frate = 30; // frame per second animated. Can be set high?
-const videofrate = 30; // Output video
+const frate = 60; // frame per second animated. Can be set high?
+const videofrate = 60; // Output video
 
 const numSecondsToCapture = 16;
 const numFrames = videofrate*numSecondsToCapture; // num of frames to record
 const numSecondsToSkipAtStart = 0.5;
 const numFramesToSkipAtStart = videofrate*numSecondsToSkipAtStart;
 
-const numFieldsToGenerate = 5;
+const numFieldsToGenerate = 100;
 
 var frameCount = 0;
 
@@ -75,13 +75,13 @@ async function recordVideoUntilFrame(numFrames, seed, numFramesToSkipAtStart, fi
       encoder.height = canvasSize;
       encoder.frameRate = videofrate;
       encoder.kbps = 10000; // video quality
-      encoder.groupOfPictures = 30; // lower if you have fast actions.
+      encoder.groupOfPictures = 120; // lower if you have fast actions.
       encoder.initialize();
 
       for (let frameCount = 0; frameCount < numFramesToSkipAtStart+numFrames; frameCount++) {
         anim();
         if (frameCount >= numFramesToSkipAtStart) {
-          saveThumbnail(seed, frameCount);
+          saveThumbnail(seed, frameCount, numFramesToSkipAtStart+numFrames);
 
           encoder.addFrameRgba(drawingContext.getImageData(0, 0, canvasSize, canvasSize).data)
           await new Promise(resolve => window.requestAnimationFrame(resolve))
@@ -103,10 +103,9 @@ async function recordVideoUntilFrame(numFrames, seed, numFramesToSkipAtStart, fi
 }
 
 
-function saveThumbnail(seed, frameCount) {
-  saveThumbnailAtFrame(2, seed, frameCount);
+function saveThumbnail(seed, frameCount,lastFrame) {
   saveThumbnailAtFrame(100, seed, frameCount);
-  saveThumbnailAtFrame(1000, seed, frameCount); 
+  saveThumbnailAtFrame(lastFrame, seed, frameCount); 
 }
 
 function saveThumbnailAtFrame(frameToSave, seed, frameCount) {
@@ -165,7 +164,7 @@ function createFlowFieldWithRandomSettings(generateRandomSettings, seed) {
     screenDivisions = 2*random(1,4);
     numparticles = random(20, 1500);
     noiseScale = random(0.0005, 0.007);
-    particleSpeed = random(0.002, 0.03);
+    particleSpeed = random(0.002, 0.03)/2;
     normalizedSpeed = particleSpeed/noiseScale;
     marginBetweenFields = border/2; // Border between fields
 
