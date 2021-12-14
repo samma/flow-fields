@@ -9,7 +9,7 @@ let canvasSize;
 let generateRandom = true;
 
 const targetNumOfPaintingsToGenerate = 1250;
-let defaultseed = 768; 
+let defaultseed = 808; 
 
 
 let enableSaveThumbnail = true;
@@ -181,7 +181,7 @@ function createFlowFieldWithRandomSettings(generateRandomSettings, seed) {
 
     //iterate over gridcoordina
     // Create HSB color 127, 20, 71
-    backgroundColor = color(127, 20, 71); // generateRandomHSBColor();
+    backgroundColor = generateRandomHSBColor();
     background(backgroundColor)
 
     // Print all of the settings to console
