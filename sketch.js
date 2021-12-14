@@ -1,12 +1,15 @@
 // Creates a flow field and displays it with some moving particles
 // Changes during rendering work: //0, 5 (60 fps half speed particles), 20, 23, 37 (groupOfPictures increased), 56 (screnshotting at 1000 now),
 // 73 (Added saving of settings), 61 more settings, more fields generated etc.
+// 768 (set green background color for Signe)
+// 808 (set random background colors)
+
 let fields = [];
 let canvasSize;
 let generateRandom = true;
 
 const targetNumOfPaintingsToGenerate = 1250;
-let defaultseed = 61; 
+let defaultseed = 768; 
 
 
 let enableSaveThumbnail = true;
@@ -36,7 +39,6 @@ function setup() {
   noStroke();
 
   renderVideos(numFieldsToGenerate, defaultseed).then(() => { console.log("Done end of setup"); });
-
 }
 
 async function renderVideos(n, defaultseed) {
@@ -178,7 +180,8 @@ function createFlowFieldWithRandomSettings(generateRandomSettings, seed) {
     palettes = Palette.generatePalettes(gridCoordinates.length, random(2,5));
 
     //iterate over gridcoordina
-    backgroundColor = color(30, 1, 87); //generateRandomHSBColor();
+    // Create HSB color 127, 20, 71
+    backgroundColor = color(127, 20, 71); // generateRandomHSBColor();
     background(backgroundColor)
 
     // Print all of the settings to console
