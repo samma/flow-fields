@@ -14,8 +14,8 @@ async function recordVideoUntilFrame(numFrames, seed, numFramesToSkipAtStart, fi
     encoder.width = canvasSize;
     encoder.height = canvasSize;
     encoder.frameRate = videofrate;
-    encoder.kbps = 20000; // video quality
-    encoder.groupOfPictures = 120; // lower if you have fast actions.
+    encoder.kbps = 25000; // video quality
+    encoder.groupOfPictures = 60; // lower if you have fast actions.
     encoder.initialize();
 
     for (let frameCount = 0; frameCount < numFramesToSkipAtStart + numFrames; frameCount++) {
@@ -43,7 +43,7 @@ async function recordVideoUntilFrame(numFrames, seed, numFramesToSkipAtStart, fi
 }
 
 function saveThumbnail(seed, frameCount, lastFrame) {
-  saveThumbnailAtFrame(100, seed, frameCount);
+  //saveThumbnailAtFrame(100, seed, frameCount);
   saveThumbnailAtFrame(lastFrame, seed, frameCount);
 }
 

@@ -16,9 +16,9 @@ function getColorName(r, g, b) {
 function getColorDistance(color1, color2) {
   let distance = 0;
   for (let i = 0; i < 3; i++) {
-    distance += Math.pow(color1[i] - color2[i], 2);
+    distance += Math.abs(color1[i] - color2[i]);
   }
-  return Math.sqrt(distance);
+  return distance;
 }
 
 function convertHSBColorToRGBColor(c) {

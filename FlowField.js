@@ -1,5 +1,5 @@
 class FlowField {
-  constructor(originx, originy, width, height, screenDivisions, noiseScale, particleSpeed, numparticles, backgroundColor, palette, borderlimit, griddivs) {
+  constructor(originx, originy, width, height, screenDivisions, noiseScale, particleSpeed, numparticles, backgroundColor, palette, borderlimit, griddivs, fatterLines) {
     this.originx = originx;
     this.originy = originy;
     this.width = width;
@@ -15,6 +15,7 @@ class FlowField {
     this.palette = palette;
     this.borderlimit = borderlimit;
     this.griddivs = griddivs;
+    this.fatterLines = fatterLines;
     this.createField();
     this.initParticles();
     this.drawBackground();
@@ -60,7 +61,11 @@ class FlowField {
   }
 
   getRandomStrokeWeight() {
-    return random(1, 4);
+    if (this.fatterLines) {
+      return random(2, 6);
+    } else {
+      return random(1, 4);
+    }
   }
 
   drawField() {
