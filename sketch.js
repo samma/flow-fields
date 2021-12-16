@@ -9,7 +9,7 @@ let startSeed = 0;
 const numVideosToGenerate = targetNumOfPaintingsToGenerate - startSeed; // Total number of fields to generate
 
 // Video and thumbnail capture settings
-let enableSaveThumbnail = false;
+let enableSaveThumbnail = true;
 let enabledSaveVideos = true;
 const frate = 60; // frame per second animated. Can be set high?
 const videofrate = 60; // Output video
@@ -79,12 +79,12 @@ function createFlowFieldWithRandomSettings(seed) {
   let screenDivisions = 1;
   let numberOfFlows = floor(random(20, 1500));
   let turbulence = random(0.0001, 0.015);
-  turbulence = roundToDecimalPlaces(turbulence, 5);   // Round noisescale to 5 decimals
+  //turbulence = roundToDecimalPlaces(turbulence, 5);   // Round noisescale to 5 decimals
 
-  let velocity = (random(0.002, 0.03) / 2) / turbulence; // Adjust particle speed to match the topology
-  velocity = roundToDecimalPlaces(velocity, 5);   // Round particle speed to 5 decimals
+  let velocity = random(0.04, 0.6); // Adjust particle speed to match the topology
+  //velocity = roundToDecimalPlaces(velocity, 5);   // Round particle speed to 5 decimals
 
-  let marginBetweenFields = floor(border / 10); // Border between fields
+  let marginBetweenFields = floor(border / 3); // Border between fields
 
   // For creating multiple flow fields in same window
   let griddivs = selectDivisions();
@@ -170,13 +170,13 @@ function createFlowFieldWithRandomSettings(seed) {
   }
 }
 
-// 20% chance of plain background, 5% chance of Signe
+// 30% chance of plain background, 5% chance of Signe
 function selectBackgroundColor() {
   let randomNum = random(1);
-  if (randomNum < 0.2) {
+  if (randomNum < 0.3) {
     return color(40, 6, 100); // Plain background
-  } else if (randomNum < 0.25) {
-    return color(127, 20, 71) // Signes color
+  } else if (randomNum < 0.35) {
+    return color(127, 20, 71) // Signes color, "Dark Sea Green"
   } else {
     return generateRandomHSBColor();
   }
@@ -191,8 +191,10 @@ function numberToReadableString(number) {
     return "Triple"
   } else if (number == 4) {
     return "Quadruple"
+  } else if (number == 5) {
+    return "Quintuple"
   } else {
-    return "Undefined"
+    return "?????"
   }
 }
 

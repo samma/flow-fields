@@ -39,7 +39,7 @@ class FlowField {
   initParticles() {
     for (var i = 0; i < this.numparticles; i++) {
       let newLocation = getrandomPointInWindowWithBorder(this.width, this.height, this.borderlimit);
-      let newStrokeWeight = random(1, 3) * random(1, 4) / this.griddivs^2;
+      let newStrokeWeight = this.getRandomStrokeWeight();
       this.particles[i] = new Point(newLocation.x, newLocation.y, this.particleSpeed, this.screenDivisions, this.palette, newStrokeWeight);
     }
   }
@@ -53,10 +53,14 @@ class FlowField {
       } else {
         // TODO remove the dead particle for performance, or keep regenerating them
         let newLocation = getrandomPointInWindowWithBorder(this.width, this.height, this.borderlimit);
-        let newStrokeWeight = random(1, 3) * random(1, 4) / this.griddivs^2;
+        let newStrokeWeight = this.getRandomStrokeWeight();
         this.particles[i] = new Point(newLocation.x, newLocation.y, this.particleSpeed, this.screenDivisions, this.palette, newStrokeWeight);
       }
     }
+  }
+
+  getRandomStrokeWeight() {
+    return random(1, 4);
   }
 
   drawField() {
