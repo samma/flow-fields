@@ -92,7 +92,7 @@ function createFlowFieldWithRandomSettings(seed) {
   turbulence = turbulence / griddivs;
   let gridSize = floor(width / griddivs);
   let gridCoordinates = createGridCoordinates(originx, originy, width, height, griddivs);
-  let palettes = Palette.generatePalettes(gridCoordinates.length, random(1, 7));
+  let palettes = Palette.generatePalettes(gridCoordinates.length, random(1, 5));
 
   // for each palette in palettes
   let sumColors = 0;
