@@ -25,13 +25,10 @@ function convertHSBColorToRGBColor(c) {
   return [red(c), green(c), blue(c)];
 }
 
-function hsbToRGB(h, s, b) {
-  let c = color(h, s, b);
-  colorMode(RGB);
-  let red = red(c);
-  let green = green(c);
-  let blue = blue(c);
-  return [red, green, blue];
+function getColorNameOfHSB(col) {
+  let rgbCol = convertHSBColorToRGBColor(col);
+  let name = getColorName(rgbCol[0], rgbCol[1], rgbCol[2]);
+  return upperCaseWordsInString(name);
 }
 
 function generateRandomHSBColor() {
@@ -39,6 +36,14 @@ function generateRandomHSBColor() {
   let saturation = random(0, 100);
   let value = random(0, 100);
   return color(hue, saturation, value);
+}
+
+function upperCaseWordsInString(str) {
+  let words = str.split(" ");
+  for (let i = 0; i < words.length; i++) {
+    words[i] = words[i].charAt(0).toUpperCase() + words[i].slice(1);
+  }
+  return words.join(" ");
 }
 
 // Colortable found on https://learn.coderslang.com/0028-html-colors-with-names-hex-and-rgb-codes/

@@ -4,8 +4,9 @@ let projectName = "Flow-Fields-";
 
 // Flow field settings
 const targetNumOfPaintingsToGenerate = 15
-let startSeed = 5
-const numVideosToGenerate = targetNumOfPaintingsToGenerate - startSeed; // Total number of fields to generate
+
+let startSeed = 0;
+const numVideosToGenerate = 5;//targetNumOfPaintingsToGenerate - startSeed; // Total number of fields to generate
 
 // Video and thumbnail capture settings
 let enableSaveThumbnail = true;
@@ -21,8 +22,15 @@ let fields = [];
 let canvasSize = 800;
 var frameCount = 0;
 
+let settings = {};
+
 // Like a constructor for the visualization
 function setup() {
+
+  startSeed = Math.floor(random(100, 300));
+  // print startSeed to console
+  console.log("Start seed: ", startSeed);
+
   createCanvas(canvasSize, canvasSize);
   frameRate(frate);
   colorMode(HSB);
@@ -31,15 +39,9 @@ function setup() {
   renderVideos(numVideosToGenerate, startSeed).then(() => { console.log("Done end of setup"); });
 }
 
-// Reset canvas between videos
-function resetCanvas() {
-  fields = [];
-  noStroke();
-  background(0);
-}
 
 async function renderVideos(numVideosToGenerate, defaultseed) {
-  for (let useSeed = defaultseed; useSeed <= numVideosToGenerate; useSeed++) {
+  for (let useSeed = defaultseed; useSeed <= defaultseed + numVideosToGenerate; useSeed++) {
     // render video and wait until it is finished before continuing the loop
     await new Promise(doneRecording => window.recordVideos(useSeed, doneRecording));
     resetCanvas();
@@ -51,6 +53,13 @@ function anim() {
   for (let i = 0; i < fields.length; i++) {
     fields[i].update();
   }
+}
+
+// Reset canvas between videos
+function resetCanvas() {
+  fields = [];
+  noStroke();
+  background(0);
 }
 
 function createFlowFieldWithRandomSettings(seed) {
@@ -68,7 +77,7 @@ function createFlowFieldWithRandomSettings(seed) {
 
   // Settings for the actual flowfields
   let screenDivisions = floor(2 * random(1, 4));
-  let numberOfParticles = floor(random(20, 1500));
+  let numberOfFlows = floor(random(20, 1500));
   let turbulence = random(0.0001, 0.015);
   turbulence = round(turbulence * 100000) / 100000;   // Round noisescale to 5 decimals
 
@@ -94,10 +103,10 @@ function createFlowFieldWithRandomSettings(seed) {
   console.log(cname);
 
   // Write all the settings to a JSON file
-  let settings = {
+  settings = {
     "seed": seed,
     "screenDivisions": screenDivisions,
-    "numberOfParticles": numberOfParticles,
+    "numberOfFlows": numberOfFlows,
     "turbulence": turbulence,
     "velocity": velocity,
     "marginBetweenFields": marginBetweenFields,
@@ -115,8 +124,6 @@ function createFlowFieldWithRandomSettings(seed) {
     "numColors": numColors
   };
 
-  downloadJSON(projectName + str(seed) + '-settings.json', settings);
-
   // Print settings to console
   console.log("Settings: ", settings);
 
@@ -124,16 +131,53 @@ function createFlowFieldWithRandomSettings(seed) {
   for (let i = 0; i < gridCoordinates.length; i++) {
     let x = gridCoordinates[i].x;
     let y = gridCoordinates[i].y;
-    fields.push(new FlowField(x, y, gridSize, gridSize, screenDivisions, turbulence, velocity, numberOfParticles, backgroundColor, palettes[i], marginBetweenFields));
+    fields.push(new FlowField(x, y, gridSize, gridSize, screenDivisions, turbulence, velocity, numberOfFlows, backgroundColor, palettes[i], marginBetweenFields));
   }
+
+
+  let attributes = genereateAttributeFile(settings);
+  saveStructAsJSON(projectName + str(seed) + '-attributes.json', attributes);
+
+  // print attributes to console
+  console.log("Attributes: ", attributes);
+
 }
 
 // Download an object as a JSON file with error handling
-function downloadJSON(filename, data) {
+function saveStructAsJSON(filename, data) {
   var a = document.createElement("a");
   a.download = filename;
   a.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data));
   a.click();
+}
+
+function genereateAttributeFile(settings) {
+  let attributes = [
+    {
+      "trait_type": "Background Color",
+      "value": getColorNameOfHSB(settings.backgroundColor)
+    }, {
+      "trait_type": "Number of Flows",
+      "value": settings.numberOfFlows
+    }, {
+      "trait_type": "Turbulence",
+      "value": settings.turbulence
+    }, {
+      "trait_type": "Velocity",
+      "value": settings.velocity
+    }, {
+      "trait_type": "Colors",
+      "value": settings.numColors
+    }, {
+      "display_type": "number", // Show it under "stats"
+      "trait_type": "Seed",
+      "value": settings.seed
+    }
+
+  ];
+
+  return attributes;
+
 }
 
 
