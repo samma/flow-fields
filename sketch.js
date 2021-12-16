@@ -79,10 +79,10 @@ function createFlowFieldWithRandomSettings(seed) {
   let screenDivisions = 1;
   let numberOfFlows = floor(random(20, 1500));
   let turbulence = random(0.0001, 0.015);
-  turbulence = round(turbulence * 100000) / 100000;   // Round noisescale to 5 decimals
+  turbulence = roundToDecimalPlaces(turbulence, 5);   // Round noisescale to 5 decimals
 
   let velocity = (random(0.002, 0.03) / 2) / turbulence; // Adjust particle speed to match the topology
-  velocity = round(velocity * 100000) / 100000;   // Round particle speed to 5 decimals
+  velocity = roundToDecimalPlaces(velocity, 5);   // Round particle speed to 5 decimals
 
   let marginBetweenFields = floor(border / 10); // Border between fields
 
@@ -216,10 +216,10 @@ function genereateAttributeFile(settings) {
       "value": settings.sumNumberOfFlows
     }, {
       "trait_type": "Turbulence",
-      "value": settings.turbulence * turbulenceScaling
+      "value": roundToDecimalPlaces(settings.turbulence * turbulenceScaling, 5)
     }, {
       "trait_type": "Velocity",
-      "value": settings.velocity * velocityScaling
+      "value": roundToDecimalPlaces(settings.velocity * velocityScaling, 5)
     }, {
       "trait_type": "Colors",
       "value": settings.sumColors

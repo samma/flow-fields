@@ -21,3 +21,8 @@ function createGridCoordinates(originx, originy, width, height, gridSize) {
   }
   return gridCoordinates;
 }
+
+function roundToDecimalPlaces(num, decimalPlaces) {
+  let multiplier = pow(10, decimalPlaces);
+  return Math.round(num * multiplier) / multiplier;
+}
