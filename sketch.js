@@ -3,13 +3,13 @@
 let projectName = "Flow-Fields-";
 
 // Flow field settings
-const targetNumOfPaintingsToGenerate = 15
+const targetNumOfPaintingsToGenerate = 100
 
 let startSeed = 0;
-const numVideosToGenerate = 5;//targetNumOfPaintingsToGenerate - startSeed; // Total number of fields to generate
+const numVideosToGenerate = targetNumOfPaintingsToGenerate - startSeed; // Total number of fields to generate
 
 // Video and thumbnail capture settings
-let enableSaveThumbnail = true;
+let enableSaveThumbnail = false;
 let enabledSaveVideos = true;
 const frate = 60; // frame per second animated. Can be set high?
 const videofrate = 60; // Output video
@@ -26,14 +26,11 @@ let settings = {};
 
 // Like a constructor for the visualization
 function setup() {
-
-  startSeed = Math.floor(random(100, 300));
   // print startSeed to console
   console.log("Start seed: ", startSeed);
 
   createCanvas(canvasSize, canvasSize);
   frameRate(frate);
-  colorMode(HSB);
   noStroke();
 
   renderVideos(numVideosToGenerate, startSeed).then(() => { console.log("Done end of setup"); });
@@ -65,6 +62,9 @@ function resetCanvas() {
 function createFlowFieldWithRandomSettings(seed) {
   randomSeed(seed);
   noiseSeed(seed);
+  
+  colorMode(HSB);
+
 
   // Equal chance to create a border or not
   let drawBorders = true;
@@ -76,7 +76,7 @@ function createFlowFieldWithRandomSettings(seed) {
   let originy = border;
 
   // Settings for the actual flowfields
-  let screenDivisions = floor(2 * random(1, 4));
+  let screenDivisions = 1;
   let numberOfFlows = floor(random(20, 1500));
   let turbulence = random(0.0001, 0.015);
   turbulence = round(turbulence * 100000) / 100000;   // Round noisescale to 5 decimals
@@ -84,18 +84,27 @@ function createFlowFieldWithRandomSettings(seed) {
   let velocity = (random(0.002, 0.03) / 2) / turbulence; // Adjust particle speed to match the topology
   velocity = round(velocity * 100000) / 100000;   // Round particle speed to 5 decimals
 
-  let marginBetweenFields = floor(border / 2); // Border between fields
+  let marginBetweenFields = floor(border / 10); // Border between fields
 
   // For creating multiple flow fields in same window
-  let griddivs = 1;
+  let griddivs = selectDivisions();
+
+  turbulence = turbulence / griddivs;
   let gridSize = floor(width / griddivs);
   let gridCoordinates = createGridCoordinates(originx, originy, width, height, griddivs);
   let palettes = Palette.generatePalettes(gridCoordinates.length, random(1, 7));
 
-  let numColors = palettes[0].getNumColors();
+  // for each palette in palettes
+  let sumColors = 0;
+  for (let i = 0; i < palettes.length; i++) {
+    let numColors = palettes[i].getNumColors();
+    sumColors += numColors;
+  }
 
-  // Create HSB color 127, 20, 71
-  backgroundColor = generateRandomHSBColor();
+  let sumNumberOfFlows = numberOfFlows * griddivs * griddivs;
+  let gridDivsAsString = numberToReadableString(griddivs);
+
+  backgroundColor = selectBackgroundColor();
   background(backgroundColor)
 
   let c = convertHSBColorToRGBColor(backgroundColor)
@@ -106,7 +115,7 @@ function createFlowFieldWithRandomSettings(seed) {
   settings = {
     "seed": seed,
     "screenDivisions": screenDivisions,
-    "numberOfFlows": numberOfFlows,
+    "sumNumberOfFlows": sumNumberOfFlows,
     "turbulence": turbulence,
     "velocity": velocity,
     "marginBetweenFields": marginBetweenFields,
@@ -121,7 +130,8 @@ function createFlowFieldWithRandomSettings(seed) {
     "enabledSaveVideos": enabledSaveVideos,
     "numFramesToSkipAtStart": numFramesToSkipAtStart,
     "numFrames": numberOfFramesToRecord,
-    "numColors": numColors
+    "sumColors": sumColors,
+    "gridDivsAsString": gridDivsAsString
   };
 
   // Print settings to console
@@ -131,7 +141,7 @@ function createFlowFieldWithRandomSettings(seed) {
   for (let i = 0; i < gridCoordinates.length; i++) {
     let x = gridCoordinates[i].x;
     let y = gridCoordinates[i].y;
-    fields.push(new FlowField(x, y, gridSize, gridSize, screenDivisions, turbulence, velocity, numberOfFlows, backgroundColor, palettes[i], marginBetweenFields));
+    fields.push(new FlowField(x, y, gridSize, gridSize, screenDivisions, turbulence, velocity, numberOfFlows, backgroundColor, palettes[i], marginBetweenFields, griddivs));
   }
 
 
@@ -140,7 +150,50 @@ function createFlowFieldWithRandomSettings(seed) {
 
   // print attributes to console
   console.log("Attributes: ", attributes);
+  
+  // Decides how many pieces to chop the video into
+  // 75 % chance of one, 15% chance of two, 5% chance of three, 4% chance of four, 1% chance of five
+  function selectDivisions() {
+    let randomNum = random(1);
+    print("Random number: ", randomNum);
+    if (randomNum < 0.75) {
+      return 1;
+    } else if (randomNum < 0.9) {
+      return 2;
+    } else if (randomNum < 0.95) {
+      return 3;
+    } else if (randomNum < 0.99) {
+      return 4;
+    } else {
+      return 5;
+    }
+  }
+}
 
+// 20% chance of plain background, 5% chance of Signe
+function selectBackgroundColor() {
+  let randomNum = random(1);
+  if (randomNum < 0.2) {
+    return color(40, 6, 100); // Plain background
+  } else if (randomNum < 0.25) {
+    return color(127, 20, 71) // Signes color
+  } else {
+    return generateRandomHSBColor();
+  }
+}
+
+function numberToReadableString(number) {
+  if (number == 1) {
+    return "Single"
+  } else if (number == 2) {
+    return "Double"
+  } else if (number == 3) {
+    return "Triple"
+  } else if (number == 4) {
+    return "Quadruple"
+  } else {
+    return "Undefined"
+  }
 }
 
 // Download an object as a JSON file with error handling
@@ -152,29 +205,41 @@ function saveStructAsJSON(filename, data) {
 }
 
 function genereateAttributeFile(settings) {
+  let turbulenceScaling = 100;
+  let velocityScaling = 2;
   let attributes = [
     {
       "trait_type": "Background Color",
       "value": getColorNameOfHSB(settings.backgroundColor)
     }, {
       "trait_type": "Number of Flows",
-      "value": settings.numberOfFlows
+      "value": settings.sumNumberOfFlows
     }, {
       "trait_type": "Turbulence",
-      "value": settings.turbulence
+      "value": settings.turbulence * turbulenceScaling
     }, {
       "trait_type": "Velocity",
-      "value": settings.velocity
+      "value": settings.velocity * velocityScaling
     }, {
       "trait_type": "Colors",
-      "value": settings.numColors
+      "value": settings.sumColors
     }, {
       "display_type": "number", // Show it under "stats"
       "trait_type": "Seed",
       "value": settings.seed
+    }, {
+      "trait_type": "Division",
+      "value": settings.gridDivsAsString
     }
-
   ];
+
+  if ("Dark Sea Green" == getColorNameOfHSB(settings.backgroundColor)) {
+    let signeTrait = {
+      "trait_type": "Special",
+      "value": "Signes Color"
+    };
+    attributes.push(signeTrait);
+  }
 
   return attributes;
 

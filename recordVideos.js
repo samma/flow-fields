@@ -14,7 +14,7 @@ async function recordVideoUntilFrame(numFrames, seed, numFramesToSkipAtStart, fi
     encoder.width = canvasSize;
     encoder.height = canvasSize;
     encoder.frameRate = videofrate;
-    encoder.kbps = 10000; // video quality
+    encoder.kbps = 15000; // video quality
     encoder.groupOfPictures = 120; // lower if you have fast actions.
     encoder.initialize();
 
