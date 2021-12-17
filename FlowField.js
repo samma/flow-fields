@@ -62,9 +62,9 @@ class FlowField {
 
   getRandomStrokeWeight() {
     if (this.fatterLines) {
-      return random(2, 6);
+      return max(1,random(5, 10) / this.griddivs);
     } else {
-      return random(1, 4);
+      return max(1,random(1, 4) / this.griddivs);
     }
   }
 

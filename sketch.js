@@ -88,6 +88,7 @@ function createFlowFieldWithRandomSettings(seed) {
 
   randomSeed(seed);
   noiseSeed(seed);
+  let dummy = random(1) // The first random number is not really random for some reason.
   
 
 
@@ -102,12 +103,11 @@ function createFlowFieldWithRandomSettings(seed) {
 
   // Settings for the actual flowfields
   let screenDivisions = 1;
-  let numberOfFlows = floor(random(20, 1500));
-  let turbulence = random(0.0003, 0.01);
+  let numberOfFlows = floor(random(50, 2300));
+  let turbulence = random(0.00001, 0.0012);
   //turbulence = roundToDecimalPlaces(turbulence, 5);   // Round noisescale to 5 decimals
 
-  let velocity = random(0.3, 1.5); // Adjust particle speed to match the topology
-  //velocity = roundToDecimalPlaces(velocity, 5);   // Round particle speed to 5 decimals
+  let velocity = random(0.8, 1.5)/(turbulence*100); // Adjust particle speed to match the topology
 
   let marginBetweenFields = floor(border / 3); // Border between fields
 
@@ -127,8 +127,12 @@ function createFlowFieldWithRandomSettings(seed) {
     sumColors += numColors;
   }
 
+
   let sumNumberOfFlows = numberOfFlows * griddivs * griddivs;
   let gridDivsAsString = numberToReadableString(griddivs);
+
+  console.log("numberOfFlows: ", numberOfFlows);
+  console.log("sumNumberOfFlows: ", sumNumberOfFlows);
 
   backgroundColor = selectBackgroundColor();
   background(backgroundColor)
@@ -210,7 +214,7 @@ function selectBackgroundColor() {
 
 function numberToReadableString(number) {
   if (number == 1) {
-    return "Single"
+    return "None"
   } else if (number == 2) {
     return "Double"
   } else if (number == 3) {
@@ -254,7 +258,7 @@ function genereateAttributeFile(settings) {
       "trait_type": "Seed",
       "value": settings.seed
     }, {
-      "trait_type": "Division",
+      "trait_type": "Duplication",
       "value": settings.gridDivsAsString
     }
   ];
