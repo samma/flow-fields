@@ -12,7 +12,6 @@ class Point {
 
     // Set the color to a color from a theme
     this.color = this.palette.getRandomColor();
-    this.color.setAlpha(10);
   }
 
   update(field) {

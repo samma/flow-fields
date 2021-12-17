@@ -3,7 +3,7 @@
 let projectName = "Flow-Fields-";
 
 // Flow field settings
-let startSeed = 100;
+let startSeed = 0;
 let endSeed = 200;
 
 const numVideosToGenerate = endSeed - startSeed; // Total number of fields to generate
@@ -24,14 +24,20 @@ var frameCount = 0;
 
 let settings = {};
 
+// Debug settings
+let drawColorRect = false
+
 // Like a constructor for the visualization
 function setup() {
+  colorMode(RGB);
+
   // print startSeed to console
   console.log("Start seed: ", startSeed);
 
   createCanvas(canvasSize, canvasSize);
   frameRate(frate);
   noStroke();
+
   if (enabledSaveVideos) {
     renderVideos(numVideosToGenerate, startSeed).then(() => { console.log("Done end of setup"); });
   }
@@ -57,6 +63,18 @@ function anim() {
   for (let i = 0; i < fields.length; i++) {
     fields[i].update();
   }
+
+  // Draw a rectangle in the bottom right corner
+  if (drawColorRect) {
+    drawColorDebugRect();
+  }
+}
+
+function drawColorDebugRect() {
+  let colorname = getColorName(backgroundColor);
+  console.log("Color name: ", colorname);
+  fill(colorTable[colorname]);
+  rect(width - 100, height - 100, 100, 100);
 }
 
 // Reset canvas between videos
@@ -67,10 +85,10 @@ function resetCanvas() {
 }
 
 function createFlowFieldWithRandomSettings(seed) {
+
   randomSeed(seed);
   noiseSeed(seed);
   
-  colorMode(HSB);
 
 
   // Equal chance to create a border or not
@@ -114,10 +132,6 @@ function createFlowFieldWithRandomSettings(seed) {
 
   backgroundColor = selectBackgroundColor();
   background(backgroundColor)
-
-  let c = convertHSBColorToRGBColor(backgroundColor)
-  let cname = getColorName(c[0], c[1], c[2]);
-  console.log(cname);
 
   // 50 % chance of this being true
   let fatterLines = random(1) < 0.5;
@@ -186,9 +200,9 @@ function createFlowFieldWithRandomSettings(seed) {
 function selectBackgroundColor() {
   let randomNum = random(1);
   if (randomNum < 0.3) {
-    return color(40, 6, 100); // Plain background
+    return color(255,250,240); // Plain background
   } else if (randomNum < 0.35) {
-    return color(127, 20, 71) // Signes color, "Dark Sea Green"
+    return color(143,188,143) // Signes color, "Dark Sea Green"
   } else {
     return generateRandomHSBColor();
   }
@@ -222,7 +236,7 @@ function genereateAttributeFile(settings) {
   let attributes = [
     {
       "trait_type": "Background Color",
-      "value": getColorNameOfHSB(settings.backgroundColor)
+      "value": getPrintableNameOfColor(settings.backgroundColor)
     }, {
       "trait_type": "Number of Flows",
       "value": settings.sumNumberOfFlows
@@ -245,7 +259,7 @@ function genereateAttributeFile(settings) {
     }
   ];
 
-  if ("Dark Sea Green" == getColorNameOfHSB(settings.backgroundColor)) {
+  if ("Dark Sea Green" == getPrintableNameOfColor(settings.backgroundColor)) {
     let signeTrait = {
       "trait_type": "Special",
       "value": "Signes Color"
