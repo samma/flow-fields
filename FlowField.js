@@ -1,5 +1,5 @@
 class FlowField {
-  constructor(originx, originy, width, height, screenDivisions, noiseScale, particleSpeed, numparticles, backgroundColor, palette, borderlimit, griddivs, fatterLines) {
+  constructor(originx, originy, width, height, screenDivisions, noiseScale, particleSpeed, numparticles, backgroundColor, palette, borderlimit, griddivs, linemode) {
     this.originx = originx;
     this.originy = originy;
     this.width = width;
@@ -15,7 +15,7 @@ class FlowField {
     this.palette = palette;
     this.borderlimit = borderlimit;
     this.griddivs = griddivs;
-    this.fatterLines = fatterLines;
+    this.lineMode = linemode;
     this.createField();
     this.initParticles();
     this.drawBackground();
@@ -60,11 +60,14 @@ class FlowField {
     }
   }
 
+  // LineMode can be Thicc, Regular, Varied
   getRandomStrokeWeight() {
-    if (this.fatterLines) {
-      return max(1,random(5, 10) / this.griddivs);
-    } else {
+    if (this.lineMode == "Thicc") {
+      return max(1,random(8, 10) / this.griddivs);
+    } else if (this.lineMode == "Regular") {
       return max(1,random(1, 4) / this.griddivs);
+    } else if (this.lineMode == "Varied") {
+      return max(1,random(1, 8) / this.griddivs);
     }
   }
 

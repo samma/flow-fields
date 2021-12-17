@@ -3,7 +3,7 @@
 let projectName = "Flow-Fields-";
 
 // Flow field settings
-let startSeed = 0;
+let startSeed = 18;
 let endSeed = 200;
 
 const numVideosToGenerate = endSeed - startSeed; // Total number of fields to generate
@@ -103,8 +103,8 @@ function createFlowFieldWithRandomSettings(seed) {
 
   // Settings for the actual flowfields
   let screenDivisions = 1;
-  let numberOfFlows = floor(random(50, 2300));
-  let turbulence = random(0.00001, 0.0012);
+  let numberOfFlows = floor(random(30, 2000));
+  let turbulence = random(0.00001, 0.002);
   //turbulence = roundToDecimalPlaces(turbulence, 5);   // Round noisescale to 5 decimals
 
   let velocity = random(0.8, 1.5)/(turbulence*100); // Adjust particle speed to match the topology
@@ -138,7 +138,7 @@ function createFlowFieldWithRandomSettings(seed) {
   background(backgroundColor)
 
   // 50 % chance of this being true
-  let fatterLines = random(1) < 0.5;
+  let lineMode = selectLineMode();
 
   // Write all the settings to a JSON file
   settings = {
@@ -161,7 +161,7 @@ function createFlowFieldWithRandomSettings(seed) {
     "numFrames": numberOfFramesToRecord,
     "sumColors": sumColors,
     "gridDivsAsString": gridDivsAsString,
-    "fatterLines": fatterLines
+    "lineMode": lineMode
   };
 
   // Print settings to console
@@ -171,7 +171,7 @@ function createFlowFieldWithRandomSettings(seed) {
   for (let i = 0; i < gridCoordinates.length; i++) {
     let x = gridCoordinates[i].x;
     let y = gridCoordinates[i].y;
-    fields.push(new FlowField(x, y, gridSize, gridSize, screenDivisions, turbulence, velocity, numberOfFlows, backgroundColor, palettes[i], marginBetweenFields, griddivs, fatterLines));
+    fields.push(new FlowField(x, y, gridSize, gridSize, screenDivisions, turbulence, velocity, numberOfFlows, backgroundColor, palettes[i], marginBetweenFields, griddivs, lineMode));
   }
 
 
@@ -185,7 +185,6 @@ function createFlowFieldWithRandomSettings(seed) {
   // 75 % chance of one, 15% chance of two, 5% chance of three, 4% chance of four, 1% chance of five
   function selectDivisions() {
     let randomNum = random(1);
-    print("Random number: ", randomNum);
     if (randomNum < 0.75) {
       return 1;
     } else if (randomNum < 0.9) {
@@ -228,6 +227,18 @@ function numberToReadableString(number) {
   }
 }
 
+// 20% chance of fat, 40% chance of regular, 40% chance of Varied
+function selectLineMode() {
+  let randomNum = random(1);
+  if (randomNum < 0.1) {
+    return "Thicc";
+  } else if (randomNum < 0.6) {
+    return "Regular";
+  } else {
+    return "Varied";
+  }
+}
+
 // Download an object as a JSON file with error handling
 function saveStructAsJSON(filename, data) {
   var a = document.createElement("a");
@@ -260,6 +271,9 @@ function genereateAttributeFile(settings) {
     }, {
       "trait_type": "Duplication",
       "value": settings.gridDivsAsString
+    }, {
+      "trait_type": "Line Mode",
+      "value": settings.lineMode
     }
   ];
 
@@ -269,14 +283,6 @@ function genereateAttributeFile(settings) {
       "value": "Signes Color"
     };
     attributes.push(signeTrait);
-  }
-
-  if (settings.fatterLines) {
-    let fatterLinesTrait = {
-      "trait_type": "Flow Modifier",
-      "value": "Thicc"
-    };
-    attributes.push(fatterLinesTrait);
   }
 
   return attributes;
