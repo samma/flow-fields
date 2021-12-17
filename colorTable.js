@@ -1,41 +1,137 @@
+// Used for classifying colors into named colors, mostly
 
-// A function for converting RGB values to color name. Example input: RGB(255,255,255), Example output: "White".
-function getColorName(r, g, b) {
+
+function getColorDistance(c1, c2) {
+  lab1 = rgb2lab([red(c1), green(c1), blue(c1)]);
+  lab2 = rgb2lab([red(c2), green(c2), blue(c2)]);
+
+  labdistance = Math.sqrt(Math.pow(lab1[0] - lab2[0], 2) + Math.pow(lab1[1] - lab2[1], 2) + Math.pow(lab1[2] - lab2[2], 2));
+  return labdistance
+}
+
+// Found somewhere on the Internet in Python, converted to JS with openai
+function rgb2lab ( inputColor ) {
+  var RGB = [0, 0, 0];
+   
+  for (var num = 0; num < 3; num++) {
+    value = inputColor[num];
+
+    value =  value / 255 ;
+
+    if ( value > 0.04045 ) {
+      value = ( ( value + 0.055 ) / 1.055 ) ** 2.4;
+    } else {
+      value = value / 12.92;
+    }
+    RGB[ num ] = value * 100;
+  }
+
+
+  var XYZ = [0, 0, 0];
+
+  var X = RGB[ 0 ] * 0.4124 + RGB[ 1 ] * 0.3576 + RGB[ 2 ] * 0.1805;
+  var Y = RGB[ 0 ] * 0.2126 + RGB[ 1 ] * 0.7152 + RGB[ 2 ] * 0.0722;
+  var Z = RGB[ 0 ] * 0.0193 + RGB[ 1 ] * 0.1192 + RGB[ 2 ] * 0.9505;
+  XYZ[ 0 ] = round( X, 4 );
+  XYZ[ 1 ] = round( Y, 4 );
+  XYZ[ 2 ] = round( Z, 4 );
+
+  XYZ[ 0 ] = ( XYZ[ 0 ] / 95.047 );         // ref_X =  95.047   Observer= 2°, Illuminant= D65
+  XYZ[ 1 ] = ( XYZ[ 1 ] / 100.0 );          // ref_Y = 100.000
+  XYZ[ 2 ] = ( XYZ[ 2 ] / 108.883 );        // ref_Z = 108.883
+
+
+  for (var num = 0; num < 3; num++) {
+    value = inputColor[num];
+
+    if ( value > 0.008856 ) {
+      value = value ** ( 0.3333333333333333 );
+    } else {
+      value = ( 7.787 * value ) + ( 16 / 116 );
+    }
+
+    XYZ[ num ] = value;
+  }
+
+  var Lab = [0, 0, 0];
+
+  var L = ( 116 * XYZ[ 1 ] ) - 16;
+  var a = 500 * ( XYZ[ 0 ] - XYZ[ 1 ] );
+  var b = 200 * ( XYZ[ 1 ] - XYZ[ 2 ] );
+
+  Lab[ 0 ] = round( L, 4 );
+  Lab[ 1 ] = round( a, 4 );
+  Lab[ 2 ] = round( b, 4 );
+
+  return Lab;
+}
+
+// Find the most similar color in the colorTable to the given color and return its name
+function getColorName(color) {
   let minDistance = Infinity;
   let closestColorName = "";
   for (let colorName in colorTable) {
-    let distance = getColorDistance(colorTable[colorName], [r, g, b]);
+    let distance = getColorDistance(colorTable[colorName], color);
     if (distance < minDistance) {
       minDistance = distance;
       closestColorName = colorName;
     }
   }
+ 
   return closestColorName;
 }
 
-function getColorDistance(color1, color2) {
-  let distance = 0;
-  for (let i = 0; i < 3; i++) {
-    distance += Math.pow(color1[i] - color2[i], 2);
-  }
-  return Math.sqrt(distance);
-}
-
-function convertHSBColorToRGBColor(c) {
-  return [red(c), green(c), blue(c)];
-}
-
-function getColorNameOfHSB(col) {
-  let rgbCol = convertHSBColorToRGBColor(col);
-  let name = getColorName(rgbCol[0], rgbCol[1], rgbCol[2]);
+function getPrintableNameOfColor(col) {
+  let name = getColorName(col);
   return upperCaseWordsInString(name);
 }
 
+// Using HSB because it is kind of a cool color space for random colors. Way better than RGB.
 function generateRandomHSBColor() {
   let hue = random(0, 360);
   let saturation = random(0, 100);
   let value = random(0, 100);
-  return color(hue, saturation, value);
+
+  let rgbVals = HSVtoRGB(hue/360.0, saturation/100.0, value/100.0);
+
+  return color(rgbVals.r, rgbVals.g, rgbVals.b);
+}
+
+/* accepts parameters
+ * h  Object = {h:x, s:y, v:z}
+ * OR 
+ * h, s, v [0-1]
+*/
+function HSVtoRGB(h, s, v) {
+  var r, g, b, i, f, p, q, t;
+  if (arguments.length === 1) {
+      s = h.s, v = h.v, h = h.h;
+  }
+  i = Math.floor(h * 6);
+  f = h * 6 - i;
+  p = v * (1 - s);
+  q = v * (1 - f * s);
+  t = v * (1 - (1 - f) * s);
+  switch (i % 6) {
+      case 0: r = v, g = t, b = p; break;
+      case 1: r = q, g = v, b = p; break;
+      case 2: r = p, g = v, b = t; break;
+      case 3: r = p, g = q, b = v; break;
+      case 4: r = t, g = p, b = v; break;
+      case 5: r = v, g = p, b = q; break;
+  }
+  return {
+      r: Math.round(r * 255),
+      g: Math.round(g * 255),
+      b: Math.round(b * 255)
+  };
+}
+
+// Function that takes a random element from colorTable and returns it as a color object.
+function getRandomTemplateColor() {
+  let randomColor = colorTable[random(Object.keys(colorTable))];
+  let c = color(randomColor[0], randomColor[1], randomColor[2]);
+  return c;
 }
 
 function upperCaseWordsInString(str) {
