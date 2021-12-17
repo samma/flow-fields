@@ -3,8 +3,8 @@
 let projectName = "Flow-Fields-";
 
 // Flow field settings
-let startSeed = 18;
-let endSeed = 200;
+let startSeed = 0;
+let endSeed = 100;
 
 const numVideosToGenerate = endSeed - startSeed; // Total number of fields to generate
 
@@ -86,11 +86,9 @@ function resetCanvas() {
 
 function createFlowFieldWithRandomSettings(seed) {
 
-  randomSeed(seed);
-  noiseSeed(seed);
-  let dummy = random(1) // The first random number is not really random for some reason.
-  
-
+  // Playing around with seed numbers because it seems seeds close to eachother are to similar
+  randomSeed((seed*seed*seed) % 100000);
+  noiseSeed((seed*seed*seed) % 100000);
 
   // Equal chance to create a border or not
   let drawBorders = true;
@@ -184,7 +182,8 @@ function createFlowFieldWithRandomSettings(seed) {
   // Decides how many pieces to chop the video into
   // 75 % chance of one, 15% chance of two, 5% chance of three, 4% chance of four, 1% chance of five
   function selectDivisions() {
-    let randomNum = random(1);
+    let randomNum = random(0,1);
+    console.log("randomNum: ", randomNum);
     if (randomNum < 0.75) {
       return 1;
     } else if (randomNum < 0.9) {
@@ -201,7 +200,7 @@ function createFlowFieldWithRandomSettings(seed) {
 
 // 30% chance of plain background, 5% chance of Signe
 function selectBackgroundColor() {
-  let randomNum = random(1);
+  let randomNum = random(0,1);
   if (randomNum < 0.3) {
     return color(255,250,240); // Plain background
   } else if (randomNum < 0.35) {
