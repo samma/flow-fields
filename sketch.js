@@ -3,8 +3,9 @@
 let projectName = "Flow-Fields-";
 
 // Flow field settings
-let startSeed = 0;
+let startSeed = 2;
 let endSeed = 100;
+let aliasScaling = 2.0; // render high res, then reduce res and blur for better video.
 
 const numVideosToGenerate = endSeed - startSeed; // Total number of fields to generate
 
@@ -19,7 +20,7 @@ const numSecondsToSkipAtStart = 0.5; // Skip some at the start, to avoid boring 
 const numFramesToSkipAtStart = videofrate * numSecondsToSkipAtStart;
 
 let fields = [];
-let canvasSize = 800;
+let canvasSize = aliasScaling*800;
 var frameCount = 0;
 
 let settings = {};
@@ -60,6 +61,7 @@ async function renderVideos(numVideosToGenerate, defaultseed) {
 
 function anim() {
   // Draw the flow field
+
   for (let i = 0; i < fields.length; i++) {
     fields[i].update();
   }
