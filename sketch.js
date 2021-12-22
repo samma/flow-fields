@@ -3,8 +3,9 @@
 let projectName = "Flow-Fields-";
 
 // Flow field settings
-let startSeed = 0;
-let endSeed = 100;
+let startSeed = 1;
+let endSeed = 1250;
+let aliasScaling = 2.0; // render high res, then reduce res and blur for better video.
 
 const numVideosToGenerate = endSeed - startSeed; // Total number of fields to generate
 
@@ -19,7 +20,7 @@ const numSecondsToSkipAtStart = 0.5; // Skip some at the start, to avoid boring 
 const numFramesToSkipAtStart = videofrate * numSecondsToSkipAtStart;
 
 let fields = [];
-let canvasSize = 800;
+let canvasSize = aliasScaling*800;
 var frameCount = 0;
 
 let settings = {};
@@ -60,6 +61,7 @@ async function renderVideos(numVideosToGenerate, defaultseed) {
 
 function anim() {
   // Draw the flow field
+
   for (let i = 0; i < fields.length; i++) {
     fields[i].update();
   }
@@ -103,30 +105,17 @@ function createFlowFieldWithRandomSettings(seed) {
   let screenDivisions = 1;
   let numberOfFlows = floor(random(30, 2000));
   let turbulence = random(0.00001, 0.002);
-  //turbulence = roundToDecimalPlaces(turbulence, 5);   // Round noisescale to 5 decimals
-
   let velocity = random(0.8, 1.5)/(turbulence*100); // Adjust particle speed to match the topology
-
   let marginBetweenFields = floor(border / 3); // Border between fields
 
   // For creating multiple flow fields in same window
-  let griddivs = selectDivisions();
-  //velocity = velocity * griddivs;
-
-  //turbulence = turbulence / griddivs;
+  let griddivs = selectDivisions();   
   let gridSize = floor(width / griddivs);
   let gridCoordinates = createGridCoordinates(originx, originy, width, height, griddivs);
   let palettes = Palette.generatePalettes(gridCoordinates.length, random(1, 5));
 
-  // for each palette in palettes
-  let sumColors = 0;
-  for (let i = 0; i < palettes.length; i++) {
-    let numColors = palettes[i].getNumColors();
-    sumColors += numColors;
-  }
-
-
-  let sumNumberOfFlows = numberOfFlows * griddivs * griddivs;
+  let sumColors = summarizeColorNum(palettes);
+  let sumNumberOfFlows = getNumberofFlow(numberOfFlows, griddivs);
   let gridDivsAsString = numberToReadableString(griddivs);
 
   console.log("numberOfFlows: ", numberOfFlows);
@@ -172,12 +161,11 @@ function createFlowFieldWithRandomSettings(seed) {
     fields.push(new FlowField(x, y, gridSize, gridSize, screenDivisions, turbulence, velocity, numberOfFlows, backgroundColor, palettes[i], marginBetweenFields, griddivs, lineMode));
   }
 
-
-  let attributes = genereateAttributeFile(settings);
-  saveStructAsJSON(projectName + str(seed) + '-attributes.json', attributes);
+  let metaData = generateMetaData(settings);
+  savePrettyJSONfileWithLineBreaks(projectName + str(seed) + '-metadata.json', metaData);
 
   // print attributes to console
-  console.log("Attributes: ", attributes);
+  console.log("Metadata: ", metaData);
   
   // Decides how many pieces to chop the video into
   // 75 % chance of one, 15% chance of two, 5% chance of three, 4% chance of four, 1% chance of five
@@ -196,6 +184,19 @@ function createFlowFieldWithRandomSettings(seed) {
       return 5;
     }
   }
+}
+
+function getNumberofFlow(numberOfFlows, griddivs) {
+  return numberOfFlows * griddivs * griddivs;
+}
+
+function summarizeColorNum(palettes) {
+  let sumColors = 0
+  for (let i = 0; i < palettes.length; i++) {
+    let numColors = palettes[i].getNumColors();
+    sumColors += numColors;
+  }
+  return sumColors;
 }
 
 // 30% chance of plain background, 5% chance of Signe
@@ -238,6 +239,14 @@ function selectLineMode() {
   }
 }
 
+function getNameOfArtPiece(settings) {
+  return "Flow Fields #" + str(settings.seed)
+}
+
+function getDescriptionOfArtPiece() {
+  return "Smooth lines and particles form to illustrate intricate outlines of a secret unrevealed generated art piece - the end result of which is Flow Fields."
+}
+
 // Download an object as a JSON file with error handling
 function saveStructAsJSON(filename, data) {
   var a = document.createElement("a");
@@ -246,7 +255,34 @@ function saveStructAsJSON(filename, data) {
   a.click();
 }
 
-function genereateAttributeFile(settings) {
+function savePrettyJSONfileWithLineBreaks(filename, data) {
+  var a = document.createElement("a");
+  a.download = filename;
+  a.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2));
+  a.click();
+}
+
+
+/* Generated meta data:
+{
+"name": "..."
+"description": "..."
+"image": "...."(this is just a link for IPFS)
+"attributes": [{"trait_type": "Background Color", "trait_value": "Floral White"},....,  {}]
+}
+*/
+
+function generateMetaData(settings) {
+  let metaData = {
+    "name": getNameOfArtPiece(settings),
+    "description": getDescriptionOfArtPiece(),
+    "image": "https://ipfs.io/",
+    "attributes": genereateAttributes(settings)
+  }
+  return metaData;
+}
+
+function genereateAttributes(settings) {
   let attributes = [
     {
       "trait_type": "Background Color",
