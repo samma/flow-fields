@@ -3,7 +3,7 @@
 let projectName = "Flow-Fields-";
 
 // Flow field settings
-let startSeed = 1;
+let startSeed = 0;
 let endSeed = 1250;
 let aliasScaling = 2.0; // render high res, then reduce res and blur for better video.
 
@@ -231,9 +231,9 @@ function numberToReadableString(number) {
 function selectLineMode() {
   let randomNum = random(1);
   if (randomNum < 0.1) {
-    return "Thicc";
+    return "Thick";
   } else if (randomNum < 0.6) {
-    return "Regular";
+    return "Slim";
   } else {
     return "Varied";
   }
