@@ -3,7 +3,7 @@
 let projectName = "Flow-Fields-";
 
 // Flow field settings
-let startSeed = 0;
+let startSeed = 1;
 let endSeed = 1250;
 let aliasScaling = 2.0; // render high res, then reduce res and blur for better video.
 
@@ -28,6 +28,12 @@ let settings = {};
 // Debug settings
 let drawColorRect = false
 
+// Seed duplicate check (because I fucked up earlier)
+let duplateDict = {};
+let seedOffset = 5555
+let alteredSeed = 0
+let flatDuplicateArray
+
 // Like a constructor for the visualization
 function setup() {
   colorMode(RGB);
@@ -38,6 +44,17 @@ function setup() {
   createCanvas(canvasSize, canvasSize);
   frameRate(frate);
   noStroke();
+
+  duplateDict = testSeedRandomness(endSeed)
+
+  // take all values from duplateDict and insert them into an array
+  let duplateArray = Object.values(duplateDict);
+  flatDuplicateArray = [].concat.apply([], duplateArray);
+  // Sort the array
+  flatDuplicateArray.sort();
+
+  console.log("Duplicate seeds: ", flatDuplicateArray);
+
 
   if (enabledSaveVideos) {
     renderVideos(numVideosToGenerate, startSeed).then(() => { console.log("Done end of setup"); });
@@ -54,8 +71,10 @@ function draw() {
 async function renderVideos(numVideosToGenerate, defaultseed) {
   for (let useSeed = defaultseed; useSeed <= defaultseed + numVideosToGenerate; useSeed++) {
     // render video and wait until it is finished before continuing the loop
-    await new Promise(doneRecording => window.recordVideos(useSeed, doneRecording));
-    resetCanvas();
+    if (useSeed in flatDuplicateArray) {
+      await new Promise(doneRecording => window.recordVideos(useSeed, doneRecording));
+      resetCanvas();
+    }     
   }
 }
 
@@ -88,9 +107,17 @@ function resetCanvas() {
 
 function createFlowFieldWithRandomSettings(seed) {
 
+  if (seed in duplateDict) {
+    console.log("Seed already used, altering it from: ", seed);
+    alteredSeed = seed + seedOffset;
+    randomSeed(alteredSeed);
+    noiseSeed(alteredSeed);
+  } else {
+    return
+  }
+
   // Playing around with seed numbers because it seems seeds close to eachother are to similar
-  randomSeed((seed*seed*seed) % 100000);
-  noiseSeed((seed*seed*seed) % 100000);
+
 
   // Equal chance to create a border or not
   let drawBorders = true;
@@ -325,3 +352,37 @@ function genereateAttributes(settings) {
 }
 
 
+function testSeedRandomness(numberOfSeeds) {
+	let found = [];
+	for (let i = 0; i < numberOfSeeds; i++) {
+		let res = (i*i*i) % 100000
+		found.push(res);
+	}
+
+  let dict = {};
+	for (let i = 0; i < found.length; i++) {
+
+		if (!dict[found[i]]) {
+			dict[found[i]] = [i];
+		} else {
+			let prev = dict[found[i]];
+			// if prev does not contain found[i]
+			if (!prev.includes(i)) {
+				prev.push(i);
+				dict[found[i]] = prev;
+			}
+		}
+	}
+
+	// For item in duplicates
+
+		
+	// remove keys in dict that has less than 2 values
+	for (let key in dict) {
+		if (dict[key].length < 2) {
+			delete dict[key];
+		}
+	}
+
+	return dict
+}
