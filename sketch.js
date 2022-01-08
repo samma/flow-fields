@@ -71,7 +71,7 @@ function draw() {
 async function renderVideos(numVideosToGenerate, defaultseed) {
   for (let useSeed = defaultseed; useSeed <= defaultseed + numVideosToGenerate; useSeed++) {
     // render video and wait until it is finished before continuing the loop
-    if (useSeed in flatDuplicateArray) {
+    if (flatDuplicateArray.includes(useSeed)) {
       await new Promise(doneRecording => window.recordVideos(useSeed, doneRecording));
       resetCanvas();
     }     
@@ -107,9 +107,9 @@ function resetCanvas() {
 
 function createFlowFieldWithRandomSettings(seed) {
 
-  if (seed in duplateDict) {
+  if (flatDuplicateArray.includes(seed)) {
     console.log("Seed already used, altering it from: ", seed);
-    alteredSeed = seed + seedOffset;
+    alteredSeed = seed;
     randomSeed(alteredSeed);
     noiseSeed(alteredSeed);
   } else {
