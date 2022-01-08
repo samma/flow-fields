@@ -54,6 +54,7 @@ function setup() {
   flatDuplicateArray.sort();
 
   console.log("Duplicate seeds: ", flatDuplicateArray);
+  console.log("Duplicate dict", duplateDict);
 
 
   if (enabledSaveVideos) {
