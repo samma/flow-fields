@@ -1,5 +1,5 @@
 # Flow Fields
-By Samma (Torgeir Lien)
+By Samma ( Torgeir Lien, samma(at)samma.no )
 
 ### Example
 
