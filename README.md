@@ -24,3 +24,7 @@ https://creativecommons.org/licenses/by-nc-sa/3.0/
 Based on p5.js v1.4.0 June 29, 2021
 
 https://p5js.org/
+
+### Disclaimer
+
+Javascript is not my preferred langauge, use with care... 
