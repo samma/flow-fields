@@ -1,6 +1,12 @@
 # Flow Fields
 By Samma (Torgeir Lien)
 
+### Example
+
+Creates a video for some seed 
+
+https://samma.github.io/flow-fields/
+
 ### Mint
 
 http://flowfields.io/
