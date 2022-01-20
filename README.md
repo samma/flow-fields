@@ -3,7 +3,7 @@ By Samma ( Torgeir Lien, samma(at)samma.no )
 
 ### Example
 
-Creates a video for a random seed number, it may take a few minutes to render completely. 
+Creates a video for a random seed number, it may take a few minutes to render completely and the tab must remain open.
 
 https://samma.github.io/flow-fields/
 
