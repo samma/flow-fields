@@ -3,8 +3,8 @@
 let projectName = "Flow-Fields-";
 
 // Flow field settings
-let startSeed = Math.floor(random(2000,100000));
-let endSeed = startSeed + 5;
+let startSeed = 0;
+let endSeed = 1250;
 let aliasScaling = 2.0; // render high res, then reduce res and blur for better video.
 
 const numVideosToGenerate = endSeed - startSeed; // Total number of fields to generate
@@ -38,6 +38,10 @@ function setup() {
   createCanvas(canvasSize, canvasSize);
   frameRate(frate);
   noStroke();
+  
+  // Randomizing seeds for public demo mode
+  startSeed = floor(random(2000,10000));
+  endSeed = startSeed + 5;
 
   if (enabledSaveVideos) {
     renderVideos(numVideosToGenerate, startSeed).then(() => { console.log("Done end of setup"); });
