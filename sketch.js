@@ -6,12 +6,12 @@ let projectName = "Flow-Fields-";
 let startSeed = 0;
 let endSeed = 1250;
 let aliasScaling = 2.0; // render high res, then reduce res and blur for better video.
-
-const numVideosToGenerate = endSeed - startSeed; // Total number of fields to generate
+let numVideosToGenerate = endSeed - startSeed; // Total number of fields to generate
 
 // Video and thumbnail capture settings
 let enableSaveThumbnail = true;
-let enabledSaveVideos = true;
+let enabledSaveVideos = true; // DEMO: Render video if true, else just display the flow field in browser (much faster)
+
 const frate = 30; // frame per second animated. Can be set high?
 const videofrate = 30; // Output video
 const numSecondsToCapture = 16;
@@ -33,9 +33,10 @@ function setup() {
   colorMode(RGB);
 
   // Randomizing seeds for public demo mode
-  startSeed = floor(random(2000,10000));
+  startSeed = floor(random(2000,10000)); // DEMO, change this to whatever number you like to get different results 
   endSeed = startSeed + 5;
-  
+  numVideosToGenerate = endSeed - startSeed; 
+
   // print startSeed to console
   console.log("Start seed: ", startSeed);
 
@@ -43,16 +44,16 @@ function setup() {
   frameRate(frate);
   noStroke();
   
-
-
   if (enabledSaveVideos) {
     renderVideos(numVideosToGenerate, startSeed).then(() => { console.log("Done end of setup"); });
+  } else {
+    createFlowFieldWithRandomSettings(startSeed);
   }
 }
 
 function draw() {
   if (!enabledSaveVideos) {
-    //anim(); 
+    anim(); 
   }
 }
 
