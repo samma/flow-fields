@@ -10,7 +10,12 @@ let numVideosToGenerate = endSeed - startSeed; // Total number of fields to gene
 
 // Video and thumbnail capture settings
 let enableSaveThumbnail = true;
-let enabledSaveVideos = true; // DEMO: Render video if true, else just display the flow field in browser (much faster)
+let enabledSaveVideos = false; // DEMO: Set this to true to render video, else just display the flow field in browser (much faster)
+let drawSecretsFirst = false // DEMO: Set this to true and enabledSaveVideos to false to view the underlying secret image
+
+
+let firstSecretDrawn = false
+let secondSecretDrawn = false
 
 const frate = 30; // frame per second animated. Can be set high?
 const videofrate = 30; // Output video
@@ -33,7 +38,7 @@ function setup() {
   colorMode(RGB);
 
   // Randomizing seeds for public demo mode
-  startSeed = floor(random(2000,10000)); // DEMO, change this to whatever number you like to get different results 
+  startSeed = floor(random(2000,100000)); // DEMO, change this to whatever number you like to get completely different looks
   endSeed = startSeed + 5;
   numVideosToGenerate = endSeed - startSeed; 
 
@@ -44,15 +49,20 @@ function setup() {
   frameRate(frate);
   noStroke();
   
+
+
   if (enabledSaveVideos) {
     renderVideos(numVideosToGenerate, startSeed).then(() => { console.log("Done end of setup"); });
-  } else {
+  } else { // Just draw fields to screen
     createFlowFieldWithRandomSettings(startSeed);
   }
 }
 
 function draw() {
-  if (!enabledSaveVideos) {
+
+  if (drawSecretsFirst) {
+    drawSecrets(frameCount)
+  } else if (!enabledSaveVideos) {
     anim(); 
   }
 }
@@ -68,7 +78,6 @@ async function renderVideos(numVideosToGenerate, defaultseed) {
 
 function anim() {
   // Draw the flow field
-
   for (let i = 0; i < fields.length; i++) {
     fields[i].update();
   }
@@ -76,6 +85,29 @@ function anim() {
   // Draw a rectangle in the bottom right corner
   if (drawColorRect) {
     drawColorDebugRect();
+  }
+}
+
+function drawSecrets(frameNum) {
+  if (frameCount > 0 && frameCount < 90 && !firstSecretDrawn) {
+    drawSecretNumber1();
+    firstSecretDrawn = true
+  } if (frameCount > 90) {
+    anim();
+  }
+}
+
+function drawSecretNumber1() {
+  console.log("Drawing secret number 1, the noise field");
+  for (let i = 0; i < fields.length; i++) {
+    fields[i].drawField()
+  }
+}
+
+function drawSecretNumber2() {
+  console.log("Drawing secret number 2, the gradient field");
+  for (let i = 0; i < fields.length; i++) {
+    fields[i].drawGradient()
   }
 }
 

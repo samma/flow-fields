@@ -71,23 +71,29 @@ class FlowField {
     }
   }
 
-  drawField() {
-    for (var i = 0; i < n; i++) {
-      for (var j = 0; j < m; j++) {
-        fill(this.topology[i][j]);
+  drawField() {    
+    let borderVals = getMinMaxOfTopology(this.topology)
+
+    for (var i = 0; i < this.topology.length; i++) {
+      for (var j = 0; j < this.topology[i].length; j++) {
+        fill(map(this.topology[i][j], borderVals.min, borderVals.max, 0, 255));
         rect(this.originx + i * this.screenDivisions, this.originy + j * this.screenDivisions, this.screenDivisions, this.screenDivisions);
       }
     }
   }
 
   drawGradient() {
-    for (var i = 0; i < n; i++) {
-      for (var j = 0; j < m; j++) {
-        fill(this.gradient[i][j].x, 0, 100);
-        rect(this.originx + i * this.screenDivisions, this.originy + j * this.screenDivisions, this.screenDivisions, this.screenDivisions);
+    let borderVals = getScaleOfField(this.gradient)
+    // log bordervals to console
+    console.log("Bordervals", borderVals);
+    
+    for (var i = 0; i < this.gradient.length; i++) {
+      for (var j = 0; j < this.gradient[i].length; j++) {
+        let x = map(this.gradient[i][j].x, borderVals.minx, borderVals.maxx, 0, 255);
+        let y = map(this.gradient[i][j].y, borderVals.miny, borderVals.maxy, 0, 255);
 
-        fill(0, gradient[i][j].y, 0, 100);
-        rect(this.originx + i * this.screenDivisions, this.originy + j * this.screenDivisions, this.screenDivisions, this.screenDivisions);
+        stroke(x, 0, y);
+        point(this.originx + i * this.screenDivisions, this.originy + j * this.screenDivisions);
       }
     }
   }
