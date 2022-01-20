@@ -32,6 +32,10 @@ let drawColorRect = false
 function setup() {
   colorMode(RGB);
 
+  // Randomizing seeds for public demo mode
+  startSeed = floor(random(2000,10000));
+  endSeed = startSeed + 5;
+  
   // print startSeed to console
   console.log("Start seed: ", startSeed);
 
@@ -39,9 +43,7 @@ function setup() {
   frameRate(frate);
   noStroke();
   
-  // Randomizing seeds for public demo mode
-  startSeed = floor(random(2000,10000));
-  endSeed = startSeed + 5;
+
 
   if (enabledSaveVideos) {
     renderVideos(numVideosToGenerate, startSeed).then(() => { console.log("Done end of setup"); });
