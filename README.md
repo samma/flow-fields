@@ -9,6 +9,8 @@ https://samma.github.io/flow-fields/
 
 ### To render video and play with the code
 
+Downloading videos only works in the Firefox Browser at the moment. 
+
 Download the code zip-file, then open sketch.js and set "enabledSaveVideos = true" on line 13, then open index.html in your browser. It will take a few minutes to render completely and the tab must remain open. The video will download when the 16 second render has been completed.
 
 To inspect a particular seed number, set for example "startSeed = 1" on line 41 in sketch.js
