@@ -38,7 +38,7 @@ function setup() {
   colorMode(RGB);
 
   // Randomizing seeds for public demo mode
-  startSeed = floor(random(2000,100000)); // DEMO, change this to whatever number you like to get completely different looks
+  startSeed = floor(random(2000,100000)); // DEMO, change this to whatever number you like to get completely different looks,eg. startSeed = 123;
   endSeed = startSeed + 5;
   numVideosToGenerate = endSeed - startSeed; 
 
