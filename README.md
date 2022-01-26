@@ -34,6 +34,7 @@ https://creativecommons.org/licenses/by-nc-sa/3.0/
 Based on p5.js v1.4.0 June 29, 2021
 
 https://p5js.org/
+https://www.npmjs.com/package/h264-mp4-encoder
 
 ### Disclaimer
 
