@@ -2,6 +2,8 @@
 
 let projectName = "Flow-Fields-";
 
+let globalScaling = 4
+
 // Flow field settings
 let startSeed = 0;
 let endSeed = 1250;
@@ -25,7 +27,7 @@ const numSecondsToSkipAtStart = 0.5; // Skip some at the start, to avoid boring 
 const numFramesToSkipAtStart = videofrate * numSecondsToSkipAtStart;
 
 let fields = [];
-let canvasSize = aliasScaling*800;
+let canvasSize = globalScaling * aliasScaling * 800;
 var frameCount = 0;
 
 let settings = {};
@@ -38,7 +40,7 @@ function setup() {
   colorMode(RGB);
 
   // Randomizing seeds for public demo mode
-  startSeed = floor(random(2000,100000)); // DEMO, change this to whatever number you like to get completely different looks
+  startSeed = 1;//floor(random(2000,100000)); // DEMO, change this to whatever number you like to get completely different looks
   endSeed = startSeed + 5;
   numVideosToGenerate = endSeed - startSeed; 
 
@@ -49,8 +51,6 @@ function setup() {
   frameRate(frate);
   noStroke();
   
-
-
   if (enabledSaveVideos) {
     renderVideos(numVideosToGenerate, startSeed).then(() => { console.log("Done end of setup"); });
   } else { // Just draw fields to screen
@@ -143,7 +143,7 @@ function createFlowFieldWithRandomSettings(seed) {
   // Settings for the actual flowfields
   let screenDivisions = 1;
   let numberOfFlows = floor(random(30, 2000));
-  let turbulence = random(0.00001, 0.002);
+  let turbulence = random(0.00001, 0.002) / globalScaling ;
   let velocity = random(0.8, 1.5)/(turbulence*100); // Adjust particle speed to match the topology
   let marginBetweenFields = floor(border / 3); // Border between fields
 
