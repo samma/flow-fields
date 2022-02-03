@@ -27,7 +27,7 @@ const numSecondsToSkipAtStart = 0.5; // Skip some at the start, to avoid boring 
 const numFramesToSkipAtStart = videofrate * numSecondsToSkipAtStart;
 
 let fields = [];
-let canvasSize = globalScaling * 800;
+let canvasSize = globalScaling * aliasScaling * 800;
 var frameCount = 0;
 
 let settings = {};
@@ -151,8 +151,8 @@ function createFlowFieldWithRandomSettings(seed) {
   // Settings for the actual flowfields
   let screenDivisions = 1;
   let numberOfFlows = floor(random(30, 2000));
-  let turbulence = 2 * random(0.00001, 0.002) / globalScaling ;
-  let velocity = globalScaling *  random(0.8, 1.5)/(turbulence*100); // Adjust particle speed to match the topology
+  let turbulence = 2 * random(0.00001, 0.002) / globalScaling  ;
+  let velocity = 0.5 * globalScaling *  random(0.8, 1.5)/(turbulence*100); // Adjust particle speed to match the topology
   let marginBetweenFields = floor(border / 3); // Border between fields
 
   // For creating multiple flow fields in same window
