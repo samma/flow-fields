@@ -11,10 +11,10 @@ async function recordVideoUntilFrame(numFrames, seed, numFramesToSkipAtStart, fi
 
   HME.createH264MP4Encoder().then(async (encoder) => {
     encoder.outputFilename = projectName + str(seed) + '.png';
-    encoder.width = canvasSize / aliasScaling ;
-    encoder.height = canvasSize / aliasScaling ;
+    encoder.width = canvasSize  ;
+    encoder.height = canvasSize  ;
     encoder.frameRate = videofrate;
-    encoder.kbps = 25000; // video quality
+    encoder.kbps = 50000; // video quality
     encoder.groupOfPictures = 60; // lower if you have fast actions.
     encoder.initialize();
 
@@ -24,7 +24,8 @@ async function recordVideoUntilFrame(numFrames, seed, numFramesToSkipAtStart, fi
         if (enableSaveThumbnail) {
           saveThumbnail(seed, frameCount, numFramesToSkipAtStart + numFrames - 1);
         }
-        encoder.addFrameRgba(blurAndResampleCanvas());
+        //encoder.addFrameRgba(blurAndResampleCanvas());
+        encoder.addFrameRgba(drawingContext.getImageData(0, 0, canvasSize, canvasSize).data);
         await new Promise(resolve => window.requestAnimationFrame(resolve));
       }
     }

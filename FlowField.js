@@ -63,11 +63,11 @@ class FlowField {
   // LineMode can be Thicc, Regular, Varied
   getRandomStrokeWeight() {
     if (this.lineMode == "Thick") {
-      return aliasScaling*max(1,random(6, 9) / this.griddivs);
+      return globalScaling * aliasScaling*max(1,random(6, 9) / this.griddivs);
     } else if (this.lineMode == "Slim") {
-      return aliasScaling*max(1,random(1, 4) / this.griddivs);
+      return globalScaling * aliasScaling*max(1,random(1, 4) / this.griddivs);
     } else if (this.lineMode == "Varied") {
-      return aliasScaling*max(1,random(1, 8) / this.griddivs);
+      return globalScaling * aliasScaling*max(1,random(1, 8) / this.griddivs);
     }
   }
 

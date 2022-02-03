@@ -7,12 +7,12 @@ let globalScaling = 4
 // Flow field settings
 let startSeed = 0;
 let endSeed = 1250;
-let aliasScaling = 2.0; // render high res, then reduce res and blur for better video.
+let aliasScaling = 1.0; // render high res, then reduce res and blur for better video.
 let numVideosToGenerate = endSeed - startSeed; // Total number of fields to generate
 
 // Video and thumbnail capture settings
 let enableSaveThumbnail = true;
-let enabledSaveVideos = false; // DEMO: Set this to true to render video, else just display the flow field in browser (much faster)
+let enabledSaveVideos = true; // DEMO: Set this to true to render video, else just display the flow field in browser (much faster)
 let drawSecretsFirst = false // DEMO: Set this to true and enabledSaveVideos to false to view the underlying secret image
 
 
@@ -27,7 +27,7 @@ const numSecondsToSkipAtStart = 0.5; // Skip some at the start, to avoid boring 
 const numFramesToSkipAtStart = videofrate * numSecondsToSkipAtStart;
 
 let fields = [];
-let canvasSize = globalScaling * aliasScaling * 800;
+let canvasSize = globalScaling * 800;
 var frameCount = 0;
 
 let settings = {};
@@ -140,11 +140,19 @@ function createFlowFieldWithRandomSettings(seed) {
   let originx = border;
   let originy = border;
 
+  // print the four thins above
+  console.log("Width: ", width);
+  console.log("Height: ", height);
+  console.log("Origin x: ", originx);
+  console.log("Origin y: ", originy);
+  console.log("Border: ", border);
+
+
   // Settings for the actual flowfields
   let screenDivisions = 1;
   let numberOfFlows = floor(random(30, 2000));
-  let turbulence = random(0.00001, 0.002) / globalScaling ;
-  let velocity = random(0.8, 1.5)/(turbulence*100); // Adjust particle speed to match the topology
+  let turbulence = 2 * random(0.00001, 0.002) / globalScaling ;
+  let velocity = globalScaling *  random(0.8, 1.5)/(turbulence*100); // Adjust particle speed to match the topology
   let marginBetweenFields = floor(border / 3); // Border between fields
 
   // For creating multiple flow fields in same window

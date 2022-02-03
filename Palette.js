@@ -9,7 +9,7 @@ class Palette {
   }
 
   getRandomColor() {
-    return this.colors[Math.floor(Math.random() * this.colors.length)];
+    return this.colors[Math.floor(random(this.colors.length))];
   }
 
   getNumColors() {
