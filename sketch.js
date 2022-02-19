@@ -43,9 +43,6 @@ let drawColorRect = false
 function setup() {
   colorMode(RGB);
 
-  // Take input params from URL
-
-
   endSeed = startSeed + 1;
   numVideosToGenerate = endSeed - startSeed; 
 
