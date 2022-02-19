@@ -38,9 +38,6 @@ let drawColorRect = false
 // Like a constructor for the visualization
 function setup() {
   colorMode(RGB);
-
-  // Take input params from URL
-
   endSeed = startSeed + 1;
   numVideosToGenerate = endSeed - startSeed; 
 
