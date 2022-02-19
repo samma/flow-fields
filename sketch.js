@@ -2,17 +2,17 @@
 
 let projectName = "Flow-Fields-";
 
-let globalScaling = 4
+let globalScaling = getUrlParam("scaling", 1)
 
 // Flow field settings
-let startSeed = 0;
+let startSeed = getUrlParam("seed", 1) //floor(random(2000,100000));
 let endSeed = 1250;
 let aliasScaling = 1.0; // render high res, then reduce res and blur for better video.
 let numVideosToGenerate = endSeed - startSeed; // Total number of fields to generate
 
 // Video and thumbnail capture settings
-let enableSaveThumbnail = true;
-let enabledSaveVideos = true; // DEMO: Set this to true to render video, else just display the flow field in browser (much faster)
+let enableSaveThumbnail = false;
+let enabledSaveVideos = getUrlParam("downloadVideo", false); // DEMO: Set this to true to render video, else just display the flow field in browser (much faster)
 let drawSecretsFirst = false // DEMO: Set this to true and enabledSaveVideos to false to view the underlying secret image
 
 
@@ -21,7 +21,7 @@ let secondSecretDrawn = false
 
 const frate = 30; // frame per second animated. Can be set high?
 const videofrate = 30; // Output video
-const numSecondsToCapture = 16;
+const numSecondsToCapture = getUrlParam("secondsToRecord", 16) //floor(random(2000,100000));
 const numberOfFramesToRecord = videofrate * numSecondsToCapture; // num of frames to record
 const numSecondsToSkipAtStart = 0.5; // Skip some at the start, to avoid boring thumbnails at the start
 const numFramesToSkipAtStart = videofrate * numSecondsToSkipAtStart;
@@ -39,9 +39,9 @@ let drawColorRect = false
 function setup() {
   colorMode(RGB);
 
-  // Randomizing seeds for public demo mode
-  startSeed = 1;//floor(random(2000,100000)); // DEMO, change this to whatever number you like to get completely different looks
-  endSeed = startSeed + 5;
+  // Take input params from URL
+
+  endSeed = startSeed + 1;
   numVideosToGenerate = endSeed - startSeed; 
 
   // print startSeed to console
@@ -87,6 +87,23 @@ function anim() {
     drawColorDebugRect();
   }
 }
+
+function getUrlVars() {
+  var vars = {};
+  var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+      vars[key] = value;
+  });
+  return vars;
+}
+
+function getUrlParam(parameter, defaultvalue){
+  var urlparameter = defaultvalue;
+  if(window.location.href.indexOf(parameter) > -1){
+      urlparameter = getUrlVars()[parameter];
+      }
+  return urlparameter;
+}
+
 
 function drawSecrets(frameNum) {
   if (frameCount > 0 && frameCount < 90 && !firstSecretDrawn) {
@@ -209,7 +226,7 @@ function createFlowFieldWithRandomSettings(seed) {
   }
 
   let metaData = generateMetaData(settings);
-  savePrettyJSONfileWithLineBreaks(projectName + str(seed) + '-metadata.json', metaData);
+  //savePrettyJSONfileWithLineBreaks(projectName + str(seed) + '-metadata.json', metaData);
 
   // print attributes to console
   console.log("Metadata: ", metaData);
