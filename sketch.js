@@ -30,6 +30,10 @@ let fields = [];
 let canvasSize = globalScaling * aliasScaling * 800;
 var frameCount = 0;
 
+// Special seeds that needs to be modified to avoid duplicates
+let modSeeds = [0,10,100,1000,1010,1020,1025,1030,1040,1050,1060,1070,1075,1080,1090,110,1100,1110,1120,1125,1130,1140,1150,1160,1170,1175,1180,1190,120,1200,1210,1220,1225,1230,1240,125,130,140,150,160,170,175,180,190,20,200,210,220,225,230,240,25,250,260,275,280,30,300,320,325,340,350,360,375,380,40,400,420,425,440,450,460,480,50,500,520,540,550,560,580,60,600,620,640,650,660,680,70,700,720,740,75,750,760,780,80,800,820,825,840,850,860,875,880,90,900,920,925,940,950,960,975,980]
+
+
 let settings = {};
 
 // Debug settings
@@ -40,6 +44,7 @@ function setup() {
   colorMode(RGB);
 
   // Take input params from URL
+
 
   endSeed = startSeed + 1;
   numVideosToGenerate = endSeed - startSeed; 
@@ -149,8 +154,18 @@ function resetCanvas() {
 function createFlowFieldWithRandomSettings(seed) {
 
   // Playing around with seed numbers because it seems seeds close to eachother are to similar
-  randomSeed((seed*seed*seed) % 100000);
-  noiseSeed((seed*seed*seed) % 100000);
+
+
+  if (modSeeds.includes(seed)) {
+    console.log("Seed already used, altering it from: ", seed);
+    randomSeed(seed);
+    noiseSeed(seed);
+  } else {
+    randomSeed((seed*seed*seed) % 100000);
+    noiseSeed((seed*seed*seed) % 100000);
+  }
+
+
 
   // Equal chance to create a border or not
   let drawBorders = true;
