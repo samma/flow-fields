@@ -2,15 +2,17 @@
 
 let projectName = "Flow-Fields-";
 
+let globalScaling = getUrlParam("scaling", 1)
+
 // Flow field settings
-let startSeed = 0;
+let startSeed = parseInt(getUrlParam("seed", 1)) //floor(random(2000,100000));
 let endSeed = 1250;
-let aliasScaling = 2.0; // render high res, then reduce res and blur for better video.
+let aliasScaling = parseFloat(getUrlParam("aliasScaling", 1.0)); // render high res, then reduce res and blur for better video.
 let numVideosToGenerate = endSeed - startSeed; // Total number of fields to generate
 
 // Video and thumbnail capture settings
-let enableSaveThumbnail = true;
-let enabledSaveVideos = false; // DEMO: Set this to true to render video, else just display the flow field in browser (much faster)
+let enableSaveThumbnail = false;
+let enabledSaveVideos = (getUrlParam("downloadVideo", false) === "true"); // DEMO: Set this to true to render video, else just display the flow field in browser (much faster)
 let drawSecretsFirst = false // DEMO: Set this to true and enabledSaveVideos to false to view the underlying secret image
 
 
@@ -19,14 +21,18 @@ let secondSecretDrawn = false
 
 const frate = 30; // frame per second animated. Can be set high?
 const videofrate = 30; // Output video
-const numSecondsToCapture = 16;
+const numSecondsToCapture = getUrlParam("secondsToRecord", 16) //floor(random(2000,100000));
 const numberOfFramesToRecord = videofrate * numSecondsToCapture; // num of frames to record
 const numSecondsToSkipAtStart = 0.5; // Skip some at the start, to avoid boring thumbnails at the start
 const numFramesToSkipAtStart = videofrate * numSecondsToSkipAtStart;
 
 let fields = [];
-let canvasSize = aliasScaling*800;
+let canvasSize = globalScaling * aliasScaling * 800;
 var frameCount = 0;
+
+// Special seeds that needs to be modified to avoid duplicates
+let modSeeds = [0,10,100,1000,1010,1020,1025,1030,1040,1050,1060,1070,1075,1080,1090,110,1100,1110,1120,1125,1130,1140,1150,1160,1170,1175,1180,1190,120,1200,1210,1220,1225,1230,1240,125,130,140,150,160,170,175,180,190,20,200,210,220,225,230,240,25,250,260,275,280,30,300,320,325,340,350,360,375,380,40,400,420,425,440,450,460,480,50,500,520,540,550,560,580,60,600,620,640,650,660,680,70,700,720,740,75,750,760,780,80,800,820,825,840,850,860,875,880,90,900,920,925,940,950,960,975,980]
+
 
 let settings = {};
 
@@ -37,9 +43,7 @@ let drawColorRect = false
 function setup() {
   colorMode(RGB);
 
-  // Randomizing seeds for public demo mode
-  startSeed = floor(random(2000,100000)); // DEMO, change this to whatever number you like to get completely different looks,eg. startSeed = 123;
-  endSeed = startSeed + 5;
+  endSeed = startSeed + 1;
   numVideosToGenerate = endSeed - startSeed; 
 
   // print startSeed to console
@@ -48,10 +52,12 @@ function setup() {
   createCanvas(canvasSize, canvasSize);
   frameRate(frate);
   noStroke();
+
+  console.log("Saving video " , enabledSaveVideos)
   
-
-
   if (enabledSaveVideos) {
+    console.log("Rendering videos....")
+
     renderVideos(numVideosToGenerate, startSeed).then(() => { console.log("Done end of setup"); });
   } else { // Just draw fields to screen
     createFlowFieldWithRandomSettings(startSeed);
@@ -69,7 +75,7 @@ function draw() {
 
 
 async function renderVideos(numVideosToGenerate, defaultseed) {
-  for (let useSeed = defaultseed; useSeed <= defaultseed + numVideosToGenerate; useSeed++) {
+  for (let useSeed = defaultseed; useSeed < defaultseed + numVideosToGenerate; useSeed++) {
     // render video and wait until it is finished before continuing the loop
     await new Promise(doneRecording => window.recordVideos(useSeed, doneRecording));
     resetCanvas();
@@ -87,6 +93,23 @@ function anim() {
     drawColorDebugRect();
   }
 }
+
+function getUrlVars() {
+  var vars = {};
+  var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+      vars[key] = value;
+  });
+  return vars;
+}
+
+function getUrlParam(parameter, defaultvalue){
+  var urlparameter = defaultvalue;
+  if(window.location.href.indexOf(parameter) > -1){
+      urlparameter = getUrlVars()[parameter];
+      }
+  return urlparameter;
+}
+
 
 function drawSecrets(frameNum) {
   if (frameCount > 0 && frameCount < 90 && !firstSecretDrawn) {
@@ -128,8 +151,18 @@ function resetCanvas() {
 function createFlowFieldWithRandomSettings(seed) {
 
   // Playing around with seed numbers because it seems seeds close to eachother are to similar
-  randomSeed((seed*seed*seed) % 100000);
-  noiseSeed((seed*seed*seed) % 100000);
+
+
+  if (modSeeds.includes(seed)) {
+    console.log("Seed already used, altering it from: ", seed);
+    randomSeed(seed);
+    noiseSeed(seed);
+  } else {
+    randomSeed((seed*seed*seed) % 100000);
+    noiseSeed((seed*seed*seed) % 100000);
+  }
+
+
 
   // Equal chance to create a border or not
   let drawBorders = true;
@@ -140,11 +173,19 @@ function createFlowFieldWithRandomSettings(seed) {
   let originx = border;
   let originy = border;
 
+  // print the four thins above
+  console.log("Width: ", width);
+  console.log("Height: ", height);
+  console.log("Origin x: ", originx);
+  console.log("Origin y: ", originy);
+  console.log("Border: ", border);
+
+
   // Settings for the actual flowfields
   let screenDivisions = 1;
   let numberOfFlows = floor(random(30, 2000));
-  let turbulence = random(0.00001, 0.002);
-  let velocity = random(0.8, 1.5)/(turbulence*100); // Adjust particle speed to match the topology
+  let turbulence = 2 * random(0.00001, 0.002) / globalScaling  ;
+  let velocity = 0.5 * globalScaling *  random(0.8, 1.5)/(turbulence*100); // Adjust particle speed to match the topology
   let marginBetweenFields = floor(border / 3); // Border between fields
 
   // For creating multiple flow fields in same window
@@ -201,7 +242,7 @@ function createFlowFieldWithRandomSettings(seed) {
   }
 
   let metaData = generateMetaData(settings);
-  savePrettyJSONfileWithLineBreaks(projectName + str(seed) + '-metadata.json', metaData);
+  //savePrettyJSONfileWithLineBreaks(projectName + str(seed) + '-metadata.json', metaData);
 
   // print attributes to console
   console.log("Metadata: ", metaData);

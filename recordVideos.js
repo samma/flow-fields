@@ -14,7 +14,7 @@ async function recordVideoUntilFrame(numFrames, seed, numFramesToSkipAtStart, fi
     encoder.width = canvasSize / aliasScaling ;
     encoder.height = canvasSize / aliasScaling ;
     encoder.frameRate = videofrate;
-    encoder.kbps = 25000; // video quality
+    encoder.kbps = 50000; // video quality
     encoder.groupOfPictures = 60; // lower if you have fast actions.
     encoder.initialize();
 
@@ -25,6 +25,7 @@ async function recordVideoUntilFrame(numFrames, seed, numFramesToSkipAtStart, fi
           saveThumbnail(seed, frameCount, numFramesToSkipAtStart + numFrames - 1);
         }
         encoder.addFrameRgba(blurAndResampleCanvas());
+        //encoder.addFrameRgba(drawingContext.getImageData(0, 0, canvasSize, canvasSize).data);
         await new Promise(resolve => window.requestAnimationFrame(resolve));
       }
     }
