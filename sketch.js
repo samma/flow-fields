@@ -7,12 +7,12 @@ let globalScaling = getUrlParam("scaling", 1)
 // Flow field settings
 let startSeed = getUrlParam("seed", 1) //floor(random(2000,100000));
 let endSeed = 1250;
-let aliasScaling = 1.0; // render high res, then reduce res and blur for better video.
+let aliasScaling = getUrlParam("aliasScaling", 1.0); // render high res, then reduce res and blur for better video.
 let numVideosToGenerate = endSeed - startSeed; // Total number of fields to generate
 
 // Video and thumbnail capture settings
 let enableSaveThumbnail = false;
-let enabledSaveVideos = getUrlParam("downloadVideo", false); // DEMO: Set this to true to render video, else just display the flow field in browser (much faster)
+let enabledSaveVideos = (getUrlParam("downloadVideo", false) === "true"); // DEMO: Set this to true to render video, else just display the flow field in browser (much faster)
 let drawSecretsFirst = false // DEMO: Set this to true and enabledSaveVideos to false to view the underlying secret image
 
 
@@ -50,8 +50,12 @@ function setup() {
   createCanvas(canvasSize, canvasSize);
   frameRate(frate);
   noStroke();
+
+  console.log("Saving video " , enabledSaveVideos)
   
   if (enabledSaveVideos) {
+    console.log("Rendering videos....")
+
     renderVideos(numVideosToGenerate, startSeed).then(() => { console.log("Done end of setup"); });
   } else { // Just draw fields to screen
     createFlowFieldWithRandomSettings(startSeed);
@@ -69,7 +73,7 @@ function draw() {
 
 
 async function renderVideos(numVideosToGenerate, defaultseed) {
-  for (let useSeed = defaultseed; useSeed <= defaultseed + numVideosToGenerate; useSeed++) {
+  for (let useSeed = defaultseed; useSeed < defaultseed + numVideosToGenerate; useSeed++) {
     // render video and wait until it is finished before continuing the loop
     await new Promise(doneRecording => window.recordVideos(useSeed, doneRecording));
     resetCanvas();
