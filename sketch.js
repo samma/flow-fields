@@ -5,9 +5,9 @@ let projectName = "Flow-Fields-";
 let globalScaling = getUrlParam("scaling", 1)
 
 // Flow field settings
-let startSeed = getUrlParam("seed", 1) //floor(random(2000,100000));
+let startSeed = parseInt(getUrlParam("seed", 1)) //floor(random(2000,100000));
 let endSeed = 1250;
-let aliasScaling = getUrlParam("aliasScaling", 1.0); // render high res, then reduce res and blur for better video.
+let aliasScaling = parseFloat(getUrlParam("aliasScaling", 1.0)); // render high res, then reduce res and blur for better video.
 let numVideosToGenerate = endSeed - startSeed; // Total number of fields to generate
 
 // Video and thumbnail capture settings
