@@ -10,8 +10,8 @@ https://samma.github.io/flow-fields/
 ### To render high res and longer videos
 How to download high resolution videos of your flow field. 
 
-Rendering in very high quality may take a lot of time and make your browser very slow, please be patient.
-Only tested in FireFox on Windows. If it does not work please download FireFox and try again.
+Rendering in very high quality may take a lot of time and make your browser very slow, please be patient. Only tested on the FireFox browser.
+Important: when rendering a video, you may have to zoom out so that the entire flow field is visible in the browser, otherwise the video will have errors. See https://support.mozilla.org/en-US/kb/font-size-and-zoom-increase-size-of-web-pages for changing zoom levels. 
 
 I recommend going through the three steps below to render properly. Change the "seed" number in the link to the number of your flow field! See more detail below. 
 
@@ -35,7 +35,6 @@ downloadVideo - wether to download a render or just watch a preview (previews ar
 secondsToRecord - How long the video should be in seconds. 16 seconds is default
 
 aliasScaling - to enable anti-aliasing and make the lines more smooth looking, set this to 2. 
-
 
 ### Mint
 
