@@ -16,21 +16,21 @@ Only tested in FireFox on Windows. If it does not work please download FireFox a
 I recommend going through the three steps below to render properly. Change the "seed" number in the link to the number of your flow field! See more detail below. 
 
 1. Create a in-browser preview of the flow field.
-https://samma.github.io/flow-fields/?downloadVideo=false&scaling=1&seed=2
+https://samma.github.io/flow-fields/?downloadVideo=false&scaling=1&seed=123456
 
 2. Test high res render of very short video of the flow field, just to see that it works.
-https://samma.github.io/flow-fields/?aliasScaling=1&downloadVideo=true&scaling=2&secondsToRecord=1&seed=1
+https://samma.github.io/flow-fields/?aliasScaling=1&downloadVideo=true&scaling=2&secondsToRecord=1&seed=123456
 
 3. Recomended settings for "final render" of your flow field. Set aliasScaling to 2 for even smoother lines (this may take a lot of time, be patient and the video will be downloaded at the end)
-https://samma.github.io/flow-fields/?aliasScaling=1&downloadVideo=true&scaling=4&secondsToRecord=16&seed=1
+https://samma.github.io/flow-fields/?aliasScaling=1&downloadVideo=true&scaling=4&secondsToRecord=16&seed=123456
 
 Explanation of the parameters:
 
 seed - Your flow field number. Example: 1
 
-scaling - How many times to double the resolution. Example: 4 gives roughly 4k resolution
+scaling - How many times to double the resolution. Example: 4 gives roughly 4k resolution. 1 is default.
 
-downloadVideo - wether to show a preview or actually render the video, true or false
+downloadVideo - wether to download a render or just watch a preview (previews are much faster), true or false
 
 secondsToRecord - How long the video should be in seconds. 16 seconds is default
 
