@@ -7,8 +7,7 @@ Displays an animation for a random seed number.
 
 https://samma.github.io/flow-fields/
 
-### To render high res and longer videos
-How to download high resolution videos of your flow field. 
+### How to download high resolution videos of your flow field. 
 
 Rendering in very high quality may take a lot of time and make your browser very slow, please be patient. Only tested on the FireFox browser.
 Important: when rendering a video, you may have to zoom out so that the entire flow field is visible in the browser, otherwise the video will have errors. See https://support.mozilla.org/en-US/kb/font-size-and-zoom-increase-size-of-web-pages for changing zoom levels. 
