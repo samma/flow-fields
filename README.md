@@ -3,7 +3,7 @@ By Samma ( Torgeir Lien, samma(at)samma.no / https://twitter.com/SammaCreative )
 
 ### Example
 
-Displays an animation for a random seed number.
+Displays an animation for a given seed number.
 
 https://samma.github.io/flow-fields/?seed=123456
 
