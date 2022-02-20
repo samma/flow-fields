@@ -5,7 +5,7 @@ By Samma ( Torgeir Lien, samma(at)samma.no / https://twitter.com/SammaCreative )
 
 Displays an animation for a random seed number.
 
-https://samma.github.io/flow-fields/
+https://samma.github.io/flow-fields/?seed=123456
 
 ### How to download high resolution videos of your flow field. 
 
