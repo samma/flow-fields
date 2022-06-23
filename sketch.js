@@ -2,7 +2,7 @@
 
 let projectName = "Flow-Fields-";
 
-let globalScaling = getUrlParam("scaling", 1)
+let globalScaling = getUrlParam("scaling", 139)
 
 // Flow field settings
 let startSeed = parseInt(getUrlParam("seed", 1)) //floor(random(2000,100000));
