@@ -37,8 +37,6 @@ aliasScaling - to enable anti-aliasing and make the lines more smooth looking, s
 
 ### Mint
 
-http://flowfields.io/
-
 https://opensea.io/collection/flowfields
 
 ### License 
